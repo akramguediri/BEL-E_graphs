@@ -11,6 +11,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Concept | Subject | File |
 |---|---|---|
 | Hydraulic press (Pascal's law) | G5 Technology I | [`figures/hydraulic-press.html`](figures/hydraulic-press.html) |
+| Double-acting cylinder + 4/2 valve | G5 Technology I | [`figures/pneumatic-cylinder.html`](figures/pneumatic-cylinder.html) |
 
 ## Setup (one-time)
 
