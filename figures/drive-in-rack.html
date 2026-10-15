@@ -1,0 +1,52 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drive-in rack</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G1 Logistics Systems · § Storage</div>
+  <h1>Drive-in rack · last in, first out</h1>
+  <p>A forklift drives <b>into</b> the lane and sets pallets down on rails, one behind the other. Because there's only one opening, the pallet you reach is always the <b>last one you put in</b>. That's <b style="color:var(--pink)">LIFO</b> — the opposite of a gravity flow rack, which loads at the back and picks at the front (<b style="color:var(--good)">FIFO</b>).</p>
+  <svg viewBox="0 0 760 300" id="svg"></svg>
+  <div class="seg">
+    <button id="load">▸ Load a pallet</button>
+    <button id="pick">◂ Pick (front)</button>
+    <button id="reset">reset</button>
+  </div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id);
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",STEEL="#8893a6",INK="#cfd3dc",FAINT="#3a3a42",GOOD="#54d19a";
+const SLOTS=5; let seq=0, lane=[]; // lane[0]=back ... lane[n-1]=front
+// seed with 3
+function seed(){lane=[{n:1},{n:2},{n:3}];seq=3;render("Three pallets in, loaded 1 → 2 → 3. Pallet 3 sits at the front.");}
+const x0=90,xf=640,y=118,pw=96,ph=58,gap=14;
+function render(msg){
+  const o=[];
+  // uprights + rail
+  o.push(`<rect x="${x0-24}" y="60" width="10" height="200" fill="#1a1a20" stroke="${FAINT}"/>`);
+  o.push(`<rect x="${xf+8}" y="60" width="10" height="200" fill="#1a1a20" stroke="${FAINT}"/>`);
+  o.push(`<line x1="${x0-24}" y1="${y+ph+8}" x2="${xf+18}" y2="${y+ph+8}" stroke="${FAINT}" stroke-width="3"/>`);
+  o.push(`<line x1="${x0-24}" y1="72" x2="${xf+18}" y2="72" stroke="${FAINT}" stroke-width="3"/>`);
+  o.push(`<text x="${x0-30}" y="52" fill="${FAINT}" font-size="12" text-anchor="start" font-family="ui-monospace,monospace">BACK (deep)</text>`);
+  o.push(`<text x="${xf+18}" y="52" fill="${AMB}" font-size="12" text-anchor="end" font-family="ui-monospace,monospace">AISLE ▸ only opening</text>`);
+  // pallets: front (last) sits nearest aisle on the right
+  for(let i=0;i<lane.length;i++){
+    const px=xf-pw-(lane.length-1-i)*(pw+gap);
+    const front=(i===lane.length-1);
+    o.push(`<rect x="${px}" y="${y}" width="${pw}" height="${ph}" rx="4" fill="${front?'rgba(255,123,156,.16)':'#15161b'}" stroke="${front?PINK:FAINT}" stroke-width="${front?2:1.3}"/>`);
+    o.push(`<rect x="${px+8}" y="${y+ph}" width="${pw-16}" height="7" fill="#1a1a20" stroke="${FAINT}"/>`);
+    o.push(`<text x="${px+pw/2}" y="${y+ph/2+5}" fill="${front?PINK:INK}" font-size="16" text-anchor="middle" font-family="ui-monospace,monospace">#${lane[i].n}</text>`);
+    o.push(`<text x="${px+pw/2}" y="${y-8}" fill="${FAINT}" font-size="10" text-anchor="middle" font-family="ui-monospace,monospace">${i===0?'in 1st':''}${front?'reachable':''}</text>`);
+  }
+  if(!lane.length) o.push(`<text x="${(x0+xf)/2}" y="${y+ph/2}" fill="${FAINT}" font-size="14" text-anchor="middle" font-family="ui-monospace,monospace">lane empty</text>`);
+  $("svg").innerHTML=o.join("");
+  if(msg)$("r").innerHTML=msg;
+}
+$("load").onclick=()=>{if(lane.length>=SLOTS){render(`Lane full (${SLOTS}). No room — you'd have to pick before loading more.`);return;}seq++;lane.push({n:seq});render(`Loaded pallet <b class="hl">#${seq}</b> at the front. It now blocks every older pallet behind it.`);};
+$("pick").onclick=()=>{if(!lane.length){render("Nothing to pick — lane empty.");return;}const g=lane.pop();render(`Picked <b class="hlp">#${g.n}</b> — the newest. You <b>cannot</b> reach the older ones until the ones in front of them leave: last in, first out.`);};
+$("reset").onclick=seed;
+seed();
+</script>
+</body></html>

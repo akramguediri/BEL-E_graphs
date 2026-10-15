@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rack and pinion</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5 Technology I · § Drives</div>
+  <h1>Rack &amp; pinion · turning into pushing</h1>
+  <p>A round gear (the <b style="color:var(--accent)">pinion</b>) meshes with a straight toothed bar (the <b style="color:var(--accent2)">rack</b>). Every turn of the pinion marches the rack along by its own rim. So rotation becomes a straight stroke — and the link is exactly <b>x = r · θ</b> (rim radius times angle turned). Drag the wheel.</p>
+  <svg viewBox="0 0 760 300" id="svg"></svg>
+  <div class="ctrl"><label>turn θ <span class="val" id="lt">0.0</span> rad</label><input type="range" id="s" min="-3.2" max="3.2" step="0.02" value="0"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id), S=$("s");
+const BLUE="#5b8cff",AMB="#ffb24d",INK="#cfd3dc",FAINT="#3a3a42",STEEL="#8893a6";
+const cx=380,cy=120,R=58,Rp=50,N=16,rackY=182,rmm=20; // Rp pitch radius px ; rmm = radius in mm
+function draw(){
+  const th=+S.value; $("lt").textContent=th.toFixed(2);
+  const stroke=Rp*th; // px the rack shifts
+  const o=[];
+  // rack window (clip)
+  o.push(`<clipPath id="win"><rect x="40" y="${rackY}" width="680" height="54"/></clipPath>`);
+  o.push(`<rect x="40" y="${rackY+22}" width="680" height="32" fill="#121216" stroke="${FAINT}"/>`);
+  // rack teeth translate by -stroke (pinion turning + moves rack... choose + right)
+  const pitch=2*Math.PI*Rp/N; // px between teeth
+  let g=`<g clip-path="url(#win)"><g transform="translate(${(-stroke)% pitch},0)">`;
+  for(let i=-2;i<=40;i++){const x=40+i*pitch;g+=`<path d="M ${x} ${rackY+22} L ${x+pitch*0.3} ${rackY+6} L ${x+pitch*0.7} ${rackY+6} L ${x+pitch} ${rackY+22} Z" fill="#1c1d24" stroke="${AMB}" stroke-width="1.3"/>`;}
+  g+=`</g></g>`; o.push(g);
+  // moving marker dot on rack to show travel (not clipped tightly)
+  o.push(`<circle cx="${380 + (stroke)}" cy="${rackY+38}" r="5" fill="${AMB}"/>`);
+  o.push(`<text x="700" y="${rackY+14}" fill="${AMB}" font-size="11" text-anchor="end" font-family="ui-monospace,monospace">rack →</text>`);
+  // pinion
+  o.push(`<circle cx="${cx}" cy="${cy}" r="${R}" fill="#121216" stroke="${BLUE}" stroke-width="2"/>`);
+  for(let i=0;i<N;i++){const a=i*2*Math.PI/N - th;const x1=cx+Math.cos(a)*R,y1=cy+Math.sin(a)*R,x2=cx+Math.cos(a)*(R+9),y2=cy+Math.sin(a)*(R+9);o.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${BLUE}" stroke-width="3"/>`);}
+  // spoke marker to see rotation
+  o.push(`<line x1="${cx}" y1="${cy}" x2="${cx+Math.cos(-th-1.57)*R}" y2="${cy+Math.sin(-th-1.57)*R}" stroke="${INK}" stroke-width="2.5"/>`);
+  o.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="${STEEL}"/>`);
+  $("svg").innerHTML=o.join("");
+  const xmm=(rmm*th);
+  $("r").innerHTML=`turned <b class="hl2">θ = ${th.toFixed(2)} rad</b> (${(th*180/Math.PI).toFixed(0)}°) · rim radius r = ${rmm} mm → rack travels <b class="hl">x = r·θ = ${xmm.toFixed(0)} mm</b>. One full turn (2π) marches it one whole circumference, 2πr = ${(2*Math.PI*rmm).toFixed(0)} mm.`;
+}
+S.addEventListener("input",draw); draw();
+</script>
+</body></html>

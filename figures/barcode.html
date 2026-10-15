@@ -1,0 +1,52 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barcode structure</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G1 Logistics Systems · § Auto-ID</div>
+  <h1>Barcode · one label, in the clear</h1>
+  <p>A barcode is just <b>wide and narrow stripes</b>. The narrowest stripe is the <b style="color:var(--accent2)">module width X</b> — every bar is a whole number of X's. Around it sits a blank <b>quiet zone</b> so the scanner knows where it starts. The catch vs the <a href="rfid-gate.html" style="color:var(--accent)">RFID gate</a>: the beam must <b>see</b> the printed label, square-on, <b>one at a time</b>.</p>
+  <svg viewBox="0 0 760 300" id="svg"></svg>
+  <div class="ctrl"><label>module width X <span class="val" id="lx">0.33</span> mm</label><input type="range" id="s" min="0.19" max="0.60" step="0.01" value="0.33"></div>
+  <div class="seg"><button id="sq" class="on">beam square-on</button><button id="tl">beam tilted / torn</button></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id), S=$("s");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",INK="#e6e6e6",FAINT="#3a3a42",GOOD="#54d19a";
+// module pattern (1=bar,0=space); widths in modules for a few bars -> use a fixed sequence of module-counts
+const PAT=[1,1,0,2,1,1,0,1,2,1,1,0,1,1,2,0,1,1,0,2,1,0,1,1,2,1,0,1,1,0,2,1,1,0,1,2]; // alternating bar/space, value=module count
+let ok=true;
+function draw(){
+  const Xmm=+S.value; $("lx").textContent=Xmm.toFixed(2);
+  const px=Xmm*18; // px per mm on screen (visual scale)
+  const qz=10*px; // quiet zone = 10X
+  const top=80,h=120;
+  let x=60+qz, bar=true, firstBarX=null,firstBarW=null;
+  const o=[];
+  // quiet zones
+  o.push(`<rect x="60" y="${top}" width="${qz}" height="${h}" fill="rgba(84,209,154,.10)"/>`);
+  for(let i=0;i<PAT.length;i++){const w=PAT[i]*px; if(bar){o.push(`<rect x="${x.toFixed(1)}" y="${top}" width="${w.toFixed(1)}" height="${h}" fill="#e9e9ee"/>`); if(firstBarX===null&&PAT[i]===1){firstBarX=x;firstBarW=w;}} x+=w; bar=!bar;}
+  const endX=x; o.push(`<rect x="${endX.toFixed(1)}" y="${top}" width="${qz}" height="${h}" fill="rgba(84,209,154,.10)"/>`);
+  const totalW=(endX+qz-60);
+  // X-dimension callout on narrowest bar
+  o.push(`<line x1="${firstBarX}" y1="${top-10}" x2="${firstBarX+firstBarW}" y2="${top-10}" stroke="${AMB}" stroke-width="2" marker-start="url(#t)" marker-end="url(#t)"/>`);
+  o.push(`<text x="${firstBarX+firstBarW/2}" y="${top-16}" fill="${AMB}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">X</text>`);
+  // quiet zone labels
+  o.push(`<text x="${60+qz/2}" y="${top+h+22}" fill="${GOOD}" font-size="11" text-anchor="middle" font-family="ui-monospace,monospace">quiet zone</text>`);
+  o.push(`<text x="${endX+qz/2}" y="${top+h+22}" fill="${GOOD}" font-size="11" text-anchor="middle" font-family="ui-monospace,monospace">quiet zone</text>`);
+  // scanner beam
+  const by=ok? top+h/2 : top-4, by2=ok? top+h/2 : top+h+4;
+  o.push(`<line x1="40" y1="${by}" x2="${endX+qz+20}" y2="${by2}" stroke="${ok?PINK:FAINT}" stroke-width="2" stroke-dasharray="2 4"/>`);
+  o.push(`<text x="400" y="270" fill="${INK}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">total symbol ≈ ${totalW.toFixed(0)} px  ·  wider X → more rugged print, longer label</text>`);
+  $("svg").innerHTML=`<defs><marker id="t" markerWidth="6" markerHeight="8" refX="3" refY="4" orient="auto"><path d="M3,0 L3,8" stroke="#ffb24d" stroke-width="2"/></marker></defs>`+o.join("");
+  $("r").innerHTML = ok
+    ? `Beam crosses every bar square-on → <b class="hlg">valid read</b>. Each bar is a whole number of <b class="hl">X</b> modules; the <b class="hlg">quiet zones</b> frame it. One label, one read, line-of-sight.`
+    : `Tilted or torn → the beam misses modules → <b class="hlp">no read</b>. A barcode must be seen cleanly, facing the scanner. RFID doesn't: it reads a whole group through cardboard, no line of sight — the trade is cost per tag.`;
+}
+$("sq").onclick=()=>{ok=true;$("sq").classList.add("on");$("tl").classList.remove("on");draw();};
+$("tl").onclick=()=>{ok=false;$("tl").classList.add("on");$("sq").classList.remove("on");draw();};
+S.addEventListener("input",draw); draw();
+</script>
+</body></html>

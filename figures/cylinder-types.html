@@ -1,0 +1,64 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cylinder types</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5 Technology I · § Pneumatics</div>
+  <h1>Single-acting vs double-acting cylinder</h1>
+  <p>Both push a piston with compressed air. A <b>single-acting</b> cylinder gets air on <b>one</b> side only — a <b style="color:var(--pink)">spring</b> brings it back. A <b>double-acting</b> cylinder gets air on <b>either</b> side, so it is driven both ways. Slide the valve and watch where the air goes.</p>
+  <svg viewBox="0 0 760 320" id="svg">
+    <!-- labels -->
+    <text x="150" y="26" fill="#e6e6e6" font-size="14" font-family="ui-monospace,monospace" text-anchor="middle">single-acting</text>
+    <text x="560" y="26" fill="#e6e6e6" font-size="14" font-family="ui-monospace,monospace" text-anchor="middle">double-acting</text>
+    <g id="sa"></g>
+    <g id="da"></g>
+  </svg>
+  <div class="ctrl"><label>valve <span class="val" id="lab">extend</span></label><input type="range" id="s" min="0" max="1" step="0.01" value="1"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id), S=$("s");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",STEEL="#8893a6",INK="#cfd3dc",FAINT="#3a3a42";
+// one cylinder barrel drawn at offset ox; p = piston fraction 0(retract)..1(extend)
+function barrel(ox,p,spring,rearLive,frontLive){
+  const x0=ox+30,x1=ox+230,cy=165,h=78,top=cy-h/2,bot=cy+h/2; // barrel inner
+  const pw=16, trav=150, px=x0+20+p*trav; // piston left face
+  const o=[];
+  // body
+  o.push(`<rect x="${x0}" y="${top}" width="${x1-x0}" height="${h}" rx="6" fill="#121216" stroke="${FAINT}" stroke-width="1.5"/>`);
+  // oil/air fill behind piston (rear = left)
+  o.push(`<rect x="${x0+2}" y="${top+2}" width="${px-x0-2}" height="${h-4}" rx="4" fill="${rearLive?'rgba(91,140,255,.22)':'rgba(120,120,130,.06)'}"/>`);
+  if(!spring) o.push(`<rect x="${px+pw}" y="${top+2}" width="${x1-(px+pw)-2}" height="${h-4}" rx="4" fill="${frontLive?'rgba(91,140,255,.22)':'rgba(120,120,130,.06)'}"/>`);
+  // spring (single-acting, front side)
+  if(spring){let d=`M ${px+pw} ${cy} `,n=9,x=px+pw,x2=x1-4,dx=(x2-x)/n;for(let i=0;i<n;i++){d+=`L ${x+dx*(i+.5)} ${i%2?cy+14:cy-14} `;}d+=`L ${x2} ${cy}`;o.push(`<path d="${d}" fill="none" stroke="${PINK}" stroke-width="2"/>`);}
+  // piston + rod
+  o.push(`<rect x="${px}" y="${top+4}" width="${pw}" height="${h-8}" rx="2" fill="${STEEL}"/>`);
+  o.push(`<rect x="${px+pw}" y="${cy-5}" width="${x1+70-(px+pw)}" height="10" rx="3" fill="${STEEL}"/>`);
+  o.push(`<rect x="${x1}" y="${top-4}" width="10" height="${h+8}" rx="2" fill="#1a1a20" stroke="${FAINT}"/>`); // front cap w/ gland
+  // ports + air arrows
+  const port=(x,live,dir)=>{o.push(`<rect x="${x-6}" y="${bot}" width="12" height="16" rx="2" fill="#1a1a20" stroke="${FAINT}"/>`);
+    if(live){o.push(`<line x1="${x}" y1="${bot+30}" x2="${x}" y2="${bot+2}" stroke="${AMB}" stroke-width="2.5" marker-end="url(#ah)"/>`);}
+    else{o.push(`<line x1="${x}" y1="${bot+2}" x2="${x}" y2="${bot+22}" stroke="${FAINT}" stroke-width="2"/>`);o.push(`<text x="${x}" y="${bot+34}" fill="${FAINT}" font-size="11" text-anchor="middle" font-family="ui-monospace,monospace">exhaust</text>`);}
+  };
+  port(x0+16,rearLive);
+  if(!spring) port(x1-16,frontLive);
+  return o.join("");
+}
+function draw(){
+  const p=+S.value;
+  $("lab").textContent = p>0.5?"extend":"retract";
+  // single-acting: air rear only on extend; spring returns on retract
+  $("sa").innerHTML=barrel(20,p,true,p>0.5,false);
+  // double-acting: valve routes air rear(extend) or front(retract)
+  $("da").innerHTML=barrel(420,p,false,p>0.5,p<=0.5);
+  const ext=p>0.5;
+  $("r").innerHTML = ext
+    ? `<b class="hl">Extending.</b> Air pushes on the <b>full piston face</b> (bore area) in both. Double-acting is <b>driven</b> out; single-acting is driven out <i>against</i> its <span class="hlp">spring</span>.`
+    : `<b class="hl2">Retracting.</b> Double-acting feeds air to the <b>front</b> — but that side is the ring area (bore minus rod), so the pull is <b>weaker</b> than the push. Single-acting has no air here: only the <span class="hlp">spring</span> returns it, so it can't do work on the way back.`;
+}
+S.addEventListener("input",draw);
+document.getElementById("svg").insertAdjacentHTML("afterbegin",'<defs><marker id="ah" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L6,3.5 L0,7 Z" fill="#ffb24d"/></marker></defs>');
+draw();
+</script>
+</body></html>
