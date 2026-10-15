@@ -23,6 +23,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Cushioning drop test (a = g·h/d) | G1 Logistics Systems | [`figures/cushioning.html`](figures/cushioning.html) |
 | Conveyor sorter (pusher switch) | G1 Logistics Systems | [`figures/sortation.html`](figures/sortation.html) |
 | Gravity flow rack (FIFO) | G1 Logistics Systems | [`figures/flow-rack.html`](figures/flow-rack.html) |
+| Strapping (tension → compression) | G1 Logistics Systems | [`figures/strapping.html`](figures/strapping.html) |
 
 ## Setup (one-time)
 
