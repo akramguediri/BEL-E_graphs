@@ -22,6 +22,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Vane motor | G5 Technology I | [`figures/vane-motor.html`](figures/vane-motor.html) |
 | Cushioning drop test (a = g·h/d) | G1 Logistics Systems | [`figures/cushioning.html`](figures/cushioning.html) |
 | Conveyor sorter (pusher switch) | G1 Logistics Systems | [`figures/sortation.html`](figures/sortation.html) |
+| Gravity flow rack (FIFO) | G1 Logistics Systems | [`figures/flow-rack.html`](figures/flow-rack.html) |
 
 ## Setup (one-time)
 
