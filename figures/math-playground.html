@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math Playground</title>
+<style>
+  :root{
+    --bg:#0c0c0d; --card:#141416; --line:#23232a; --grid:#1c1c22;
+    --ink:#e7e7ea; --muted:#9a9aa3; --dim:#6a6a73;
+    --accent:#5b8cff;      /* curve */
+    --accent2:#ffb24d;     /* the thing you drag */
+    --good:#54d19a;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{color-scheme:dark}
+  body{margin:0;background:transparent;color:var(--ink);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+  main{width:min(760px,100% - 24px);margin:22px auto 60px}
+  h1{font-size:26px;margin:0 0 4px;letter-spacing:.01em}
+  .lede{color:var(--muted);margin:0 0 26px;font-size:15px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 20px 22px;margin:16px 0}
+  .tag{font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+  h2{font-size:19px;margin:0 0 8px}
+  p{margin:8px 0;color:#cfcfd6}
+  p.note{color:var(--muted);font-size:14px}
+  b{color:#fff}
+  .eq{font:500 15px/1.5 var(--mono);color:#dfe6ff;background:#171a24;border:1px solid #232a3d;border-radius:8px;padding:8px 11px;display:inline-block;margin:4px 0}
+  canvas{display:block;width:100%;height:auto;border-radius:10px;background:#0f0f12;border:1px solid var(--line);touch-action:none}
+  .controls{display:flex;flex-wrap:wrap;gap:14px 22px;margin:14px 0 2px}
+  .ctrl{flex:1 1 150px;min-width:140px}
+  .ctrl label{display:flex;justify-content:space-between;font:600 13px var(--mono);color:var(--muted);margin-bottom:5px}
+  .ctrl label .val{color:var(--accent2)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;background:var(--line);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent2);border:3px solid #1a1a1f;cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent2);border:3px solid #1a1a1f;cursor:pointer}
+  .readout{font:600 14px var(--mono);color:var(--ink);margin-top:12px;background:#121216;border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+  .readout .hl{color:var(--accent2)}
+  .readout .hl2{color:var(--accent)}
+  .hint{font:600 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:10px}
+  .machine{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;font:600 17px var(--mono);margin:6px 0 2px}
+  .chip{background:#171a24;border:1px solid #232a3d;border-radius:8px;padding:8px 13px;min-width:52px;text-align:center}
+  .chip.in{color:var(--accent2);border-color:#3a3020}
+  .chip.rule{color:var(--muted)}
+  .chip.out{color:var(--accent);border-color:#263048}
+  .arrow{color:var(--dim)}
+  footer{color:var(--dim);font-size:13px;margin-top:26px;text-align:center}
+  @media (max-width:520px){ h1{font-size:22px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<main>
+  <h1>Math Playground</h1>
+  <p class="lede">You're not bad at math — you've just been shown symbols instead of pictures. Drag the sliders. Watch what each number actually <i>does</i>. Nothing to get wrong here.</p>
+
+  <!-- 1. function machine -->
+  <section class="card">
+    <p class="tag">1 · The big idea</p>
+    <h2>A function is just a machine</h2>
+    <p>Put a number <b>x</b> in. The machine follows one rule. A number <b>y</b> comes out. That's the whole concept — "f(x)" just means "the machine f, fed x."</p>
+    <div class="machine">
+      <span class="chip in" id="m-in">2</span>
+      <span class="arrow">→</span>
+      <span class="chip rule">double it, +1</span>
+      <span class="arrow">→</span>
+      <span class="chip out" id="m-out">5</span>
+    </div>
+    <canvas id="c-machine" width="720" height="300"></canvas>
+    <div class="controls"><div class="ctrl">
+      <label>your input&nbsp;x <span class="val" id="l-mx">2.0</span></label>
+      <input type="range" id="s-mx" min="-5" max="5" step="0.1" value="2">
+    </div></div>
+    <div class="readout">feed in <span class="hl">x = <span id="r-mx">2.0</span></span> &nbsp;→&nbsp; rule f(x)=2x+1 &nbsp;→&nbsp; out comes <span class="hl2">y = <span id="r-my">5.0</span></span>. The dot is that answer, drawn as a point (x, y).</div>
+    <p class="hint">Slide it — the dot traces every answer, and the answers form a line.</p>
+  </section>
+
+  <!-- 2. linear -->
+  <section class="card">
+    <p class="tag">2 · Straight lines</p>
+    <h2>f(x) = m·x + b</h2>
+    <p>Every straight line is two numbers. <b style="color:var(--accent2)">m</b> is the <b>slope</b> — how steep (how much y climbs when x goes right by 1). <b style="color:var(--accent2)">b</b> is where it crosses the vertical axis.</p>
+    <canvas id="c-lin" width="720" height="340"></canvas>
+    <div class="controls">
+      <div class="ctrl"><label>slope&nbsp;m <span class="val" id="l-m">1.0</span></label><input type="range" id="s-m" min="-3" max="3" step="0.1" value="1"></div>
+      <div class="ctrl"><label>intercept&nbsp;b <span class="val" id="l-b">0.0</span></label><input type="range" id="s-b" min="-4" max="4" step="0.1" value="0"></div>
+    </div>
+    <div class="readout">walk 1 step right, the line climbs <span class="hl">m = <span id="r-m">1.0</span></span>. It crosses the y-axis at <span class="hl2">b = <span id="r-b">0.0</span></span>. &nbsp; <span id="r-lslope"></span></div>
+    <p class="note">Make m negative → it goes downhill. Make m = 0 → flat. That's all a slope is.</p>
+  </section>
+
+  <!-- 3. quadratic -->
+  <section class="card">
+    <p class="tag">3 · Parabolas (the U-shape)</p>
+    <h2>f(x) = a·x² + b·x + c</h2>
+    <p>The <b>x²</b> bends the line into a U. <b style="color:var(--accent2)">a</b> sets how tight the U is and which way it opens (up or down). The <b>roots</b> (orange dots) are where it touches zero — the famous formula just finds those.</p>
+    <canvas id="c-quad" width="720" height="340"></canvas>
+    <div class="controls">
+      <div class="ctrl"><label>a <span class="val" id="l-a">1.0</span></label><input type="range" id="s-a" min="-2" max="2" step="0.1" value="1"></div>
+      <div class="ctrl"><label>b <span class="val" id="l-qb">0.0</span></label><input type="range" id="s-qb" min="-4" max="4" step="0.1" value="0"></div>
+      <div class="ctrl"><label>c <span class="val" id="l-c">-3.0</span></label><input type="range" id="s-c" min="-5" max="5" step="0.1" value="-3"></div>
+    </div>
+    <div class="readout" id="r-quad"></div>
+    <p class="note"><b>Discriminant</b> b²−4ac decides everything: positive → 2 roots, zero → 1, negative → the U floats clear of zero (no real roots). Watch the dots vanish when it goes negative.</p>
+  </section>
+
+  <!-- 4. exp + log -->
+  <section class="card">
+    <p class="tag">4 · Exponential & its mirror, the log</p>
+    <h2>b<sup>x</sup> grows fast — log undoes it</h2>
+    <p><b style="color:var(--accent)">bˣ</b> (blue) is repeated multiplying: growth that explodes. <b style="color:var(--good)">log<sub>b</sub>(x)</b> (green) is the <b>undo button</b> — it answers "what power gives me this number?" They're mirror images across the dashed line y = x.</p>
+    <canvas id="c-exp" width="720" height="360"></canvas>
+    <div class="controls"><div class="ctrl">
+      <label>base&nbsp;b <span class="val" id="l-base">2.0</span></label>
+      <input type="range" id="s-base" min="1.2" max="4" step="0.1" value="2">
+    </div></div>
+    <div class="readout">with base <span class="hl">b = <span id="r-base">2.0</span></span>: &nbsp; <span class="hl2"><span id="r-ex">b</span><sup>3</sup> = <span id="r-exv">8.0</span></span> (multiply b three times), and the log undoes it: <span style="color:var(--good)">log<sub>b</sub>(<span id="r-exv2">8.0</span>) = 3</span>.</div>
+    <p class="note">That mirror is why "take the log of both sides" solves exponential equations — it's literally the undo.</p>
+  </section>
+
+  <!-- 5. derivative -->
+  <section class="card">
+    <p class="tag">5 · The one calculus idea</p>
+    <h2>A derivative is just the steepness, right here</h2>
+    <p>Pick any spot on a curve and ask "if I stand here, how steep is it?" That slope — the tilt of the <b style="color:var(--accent2)">orange tangent line</b> — is the derivative at that point. Slide across and watch the steepness change: uphill (positive), flat at the top (zero), downhill (negative).</p>
+    <canvas id="c-der" width="720" height="360"></canvas>
+    <div class="controls"><div class="ctrl">
+      <label>stand at&nbsp;x <span class="val" id="l-dx">-1.4</span></label>
+      <input type="range" id="s-dx" min="-3" max="3" step="0.05" value="-1.4">
+    </div></div>
+    <div class="readout">at <span class="hl">x = <span id="r-dx">-1.4</span></span> the curve's steepness is <span class="hl2">slope = <span id="r-dslope">+?</span></span>. <span id="r-dword"></span></div>
+    <p class="note">Flat spots (slope = 0) are the <b>peaks and valleys</b> — that's exactly how you find a function's max and min. You just found what the whole "set f′(x)=0" chapter is about.</p>
+  </section>
+
+  <footer>Drag everything. Built for BEL-E · G3 Applied Mathematics.</footer>
+</main>
+
+<script>
+"use strict";
+const C = getComputedStyle(document.documentElement);
+const COL = { ink:"#e7e7ea", grid:"#1c1c22", axis:"#3a3a44", accent:"#5b8cff", accent2:"#ffb24d", good:"#54d19a", muted:"#9a9aa3" };
+
+class Plot {
+  constructor(id, xmin, xmax, ymin, ymax){
+    this.cv = document.getElementById(id); this.ctx = this.cv.getContext("2d");
+    this.xmin=xmin; this.xmax=xmax; this.ymin=ymin; this.ymax=ymax;
+    this.resize(); addEventListener("resize", ()=>{ this.resize(); this.redraw && this.redraw(); });
+  }
+  resize(){
+    const dpr = Math.min(2, devicePixelRatio||1);
+    const w = this.cv.clientWidth || 700, h = w * (this.cv.getAttribute("height")/this.cv.getAttribute("width"));
+    this.cv.style.height = h+"px";
+    this.W=w; this.H=h; this.cv.width=w*dpr; this.cv.height=h*dpr;
+    this.ctx.setTransform(dpr,0,0,dpr,0,0);
+    this.pad=34;
+  }
+  sx(x){ return this.pad + (x-this.xmin)/(this.xmax-this.xmin)*(this.W-2*this.pad); }
+  sy(y){ return this.H-this.pad - (y-this.ymin)/(this.ymax-this.ymin)*(this.H-2*this.pad); }
+  clear(){ this.ctx.clearRect(0,0,this.W,this.H); }
+  grid(){
+    const c=this.ctx; c.lineWidth=1; c.font="11px ui-monospace,monospace"; c.textAlign="center"; c.textBaseline="middle";
+    const stepX = niceStep(this.xmax-this.xmin), stepY = niceStep(this.ymax-this.ymin);
+    for(let x=Math.ceil(this.xmin/stepX)*stepX; x<=this.xmax+1e-9; x+=stepX){
+      c.strokeStyle=COL.grid; c.beginPath(); c.moveTo(this.sx(x),this.pad-6); c.lineTo(this.sx(x),this.H-this.pad+6); c.stroke();
+      if(Math.abs(x)>1e-9){ c.fillStyle=COL.muted; c.fillText(fmt(x), this.sx(x), this.sy(0)+ (this.ymin<0&&this.ymax>0?12:-0)+ (this.inRangeY(0)?12:0)); }
+    }
+    for(let y=Math.ceil(this.ymin/stepY)*stepY; y<=this.ymax+1e-9; y+=stepY){
+      c.strokeStyle=COL.grid; c.beginPath(); c.moveTo(this.pad-6,this.sy(y)); c.lineTo(this.W-this.pad+6,this.sy(y)); c.stroke();
+      if(Math.abs(y)>1e-9 && this.inRangeY(y)){ c.textAlign="right"; c.fillStyle=COL.muted; c.fillText(fmt(y), (this.inRangeX(0)?this.sx(0)-6:this.pad-9), this.sy(y)); c.textAlign="center"; }
+    }
+    // axes
+    c.strokeStyle=COL.axis; c.lineWidth=1.4;
+    if(this.inRangeY(0)){ c.beginPath(); c.moveTo(this.pad,this.sy(0)); c.lineTo(this.W-this.pad,this.sy(0)); c.stroke(); }
+    if(this.inRangeX(0)){ c.beginPath(); c.moveTo(this.sx(0),this.pad); c.lineTo(this.sx(0),this.H-this.pad); c.stroke(); }
+  }
+  inRangeX(x){ return x>=this.xmin && x<=this.xmax; }
+  inRangeY(y){ return y>=this.ymin && y<=this.ymax; }
+  curve(f, color, width){
+    const c=this.ctx; c.strokeStyle=color; c.lineWidth=width||2.4; c.lineJoin="round"; c.beginPath();
+    let pen=false;
+    for(let px=this.pad; px<=this.W-this.pad; px+=1.5){
+      const x = this.xmin + (px-this.pad)/(this.W-2*this.pad)*(this.xmax-this.xmin);
+      const y = f(x);
+      if(!isFinite(y)){ pen=false; continue; }
+      const sy=this.sy(y);
+      if(sy< -50 || sy>this.H+50){ pen=false; continue; }
+      if(!pen){ c.moveTo(px,sy); pen=true; } else c.lineTo(px,sy);
+    }
+    c.stroke();
+  }
+  seg(x1,y1,x2,y2,color,width,dash){
+    const c=this.ctx; c.save(); c.strokeStyle=color; c.lineWidth=width||1.6; c.setLineDash(dash||[]); c.beginPath();
+    c.moveTo(this.sx(x1),this.sy(y1)); c.lineTo(this.sx(x2),this.sy(y2)); c.stroke(); c.restore();
+  }
+  dot(x,y,color,r){ const c=this.ctx; c.fillStyle=color; c.beginPath(); c.arc(this.sx(x),this.sy(y),r||5,0,7); c.fill();
+    c.strokeStyle="#0f0f12"; c.lineWidth=2; c.stroke(); }
+  vline(x,color){ this.seg(x,this.ymin,x,this.ymax,color,1,[3,4]); }
+}
+function niceStep(span){ const raw=span/7; const p=Math.pow(10,Math.floor(Math.log10(raw))); const n=raw/p; return (n<1.5?1:n<3.5?2:n<7?5:10)*p; }
+function fmt(v){ return Math.abs(v)<1e-9?"0":(Math.abs(v)>=100||Math.abs(v)<0.01? v.toPrecision(2): (Math.round(v*100)/100).toString()); }
+const $=(id)=>document.getElementById(id);
+
+/* 1. machine */
+(()=>{ const p=new Plot("c-machine",-5,5,-9,11); const f=x=>2*x+1;
+  const s=$("s-mx");
+  p.redraw=()=>{ p.clear(); p.grid(); p.curve(f,COL.accent); const x=+s.value, y=f(x);
+    p.vline(x, "#2a2a33"); p.dot(x,y,COL.accent2,6);
+    $("l-mx").textContent=x.toFixed(1); $("r-mx").textContent=x.toFixed(1); $("r-my").textContent=y.toFixed(1);
+    $("m-in").textContent=x.toFixed(1); $("m-out").textContent=y.toFixed(1); };
+  s.oninput=p.redraw; p.redraw();
+})();
+
+/* 2. linear */
+(()=>{ const p=new Plot("c-lin",-6,6,-6,6); const sm=$("s-m"), sb=$("s-b");
+  p.redraw=()=>{ const m=+sm.value,b=+sb.value; p.clear(); p.grid(); p.curve(x=>m*x+b,COL.accent);
+    p.dot(0,b,COL.accent2,5);
+    // slope triangle at x=0..1
+    if(Math.abs(m)>0.001){ p.seg(0,b,1,b,COL.accent2,1.4,[4,3]); p.seg(1,b,1,b+m,COL.accent2,1.4,[4,3]); }
+    $("l-m").textContent=m.toFixed(1); $("l-b").textContent=b.toFixed(1); $("r-m").textContent=m.toFixed(1); $("r-b").textContent=b.toFixed(1);
+    $("r-lslope").innerHTML = m>0.05?"Going <b style='color:#54d19a'>uphill</b>.":m<-0.05?"Going <b style='color:#ffb24d'>downhill</b>.":"Perfectly <b>flat</b>."; };
+  sm.oninput=p.redraw; sb.oninput=p.redraw; p.redraw();
+})();
+
+/* 3. quadratic */
+(()=>{ const p=new Plot("c-quad",-6,6,-8,8); const sa=$("s-a"),sb=$("s-qb"),sc=$("s-c");
+  p.redraw=()=>{ let a=+sa.value,b=+sb.value,c=+sc.value; if(Math.abs(a)<0.1)a=a<0?-0.1:0.1;
+    p.clear(); p.grid(); p.curve(x=>a*x*x+b*x+c,COL.accent);
+    const vx=-b/(2*a), vy=a*vx*vx+b*vx+c; p.dot(vx,vy,COL.accent,5);
+    const disc=b*b-4*a*c; let msg="";
+    if(disc>0){ const r1=(-b-Math.sqrt(disc))/(2*a), r2=(-b+Math.sqrt(disc))/(2*a); p.dot(r1,0,COL.accent2,6); p.dot(r2,0,COL.accent2,6);
+      msg=`discriminant b²−4ac = <span class="hl2">${disc.toFixed(1)}</span> &gt; 0 → <span class="hl">two roots</span> at x = ${r1.toFixed(2)} and ${r2.toFixed(2)}.`; }
+    else if(Math.abs(disc)<0.05){ p.dot(vx,0,COL.accent2,6); msg=`discriminant = <span class="hl2">0</span> → the U just kisses zero: <span class="hl">one root</span> at x = ${vx.toFixed(2)}.`; }
+    else { msg=`discriminant = <span class="hl2">${disc.toFixed(1)}</span> &lt; 0 → the U floats clear of zero: <span class="hl">no real roots</span>.`; }
+    $("l-a").textContent=(+sa.value).toFixed(1); $("l-qb").textContent=b.toFixed(1); $("l-c").textContent=c.toFixed(1);
+    $("r-quad").innerHTML = (a>0?"Opens <b>up</b> (a&gt;0)":"Opens <b>down</b> (a&lt;0)")+`, lowest/highest point (vertex) at x = ${vx.toFixed(2)}. ${msg}`; };
+  sa.oninput=p.redraw; sb.oninput=p.redraw; sc.oninput=p.redraw; p.redraw();
+})();
+
+/* 4. exp + log */
+(()=>{ const p=new Plot("c-exp",-1,8,-1,8); const sb=$("s-base");
+  p.redraw=()=>{ const b=+sb.value; p.clear(); p.grid();
+    p.seg(-1,-1,8,8,"#3a3a44",1.2,[4,4]); // y=x mirror
+    p.curve(x=>Math.pow(b,x),COL.accent);
+    p.curve(x=> x>0 ? Math.log(x)/Math.log(b) : NaN, COL.good);
+    p.dot(3,Math.pow(b,3),COL.accent,5); p.dot(Math.pow(b,3),3,COL.good,5);
+    $("l-base").textContent=b.toFixed(1); $("r-base").textContent=b.toFixed(1);
+    $("r-ex").textContent=b.toFixed(1); $("r-exv").textContent=Math.pow(b,3).toFixed(1); $("r-exv2").textContent=Math.pow(b,3).toFixed(1); };
+  sb.oninput=p.redraw; p.redraw();
+})();
+
+/* 5. derivative */
+(()=>{ const p=new Plot("c-der",-3,3,-4,6); const f=x=>0.6*x*x*x - 1.2*x; // nice hills/valleys
+  const s=$("s-dx");
+  function set(a){ a=Math.max(-3,Math.min(3,a)); s.value=a; p.redraw(); }
+  p.redraw=()=>{ const a=+s.value; const h=0.001; const slope=(f(a+h)-f(a-h))/(2*h); const y=f(a);
+    p.clear(); p.grid(); p.curve(f,COL.accent);
+    // tangent line across the view
+    const x1=p.xmin, x2=p.xmax; p.seg(x1, y+slope*(x1-a), x2, y+slope*(x2-a), COL.accent2, 2, []);
+    p.dot(a,y,COL.accent2,6);
+    $("l-dx").textContent=a.toFixed(2); $("r-dx").textContent=a.toFixed(2);
+    $("r-dslope").textContent=(slope>=0?"+":"")+slope.toFixed(2);
+    $("r-dword").innerHTML = slope>0.1?"That's <b style='color:#54d19a'>positive</b> — the curve is going <b>uphill</b> here.":slope<-0.1?"That's <b style='color:#ffb24d'>negative</b> — going <b>downhill</b> here.":"Almost <b>zero</b> — you're at a <b>flat spot</b> (a peak or a valley!)."; };
+  s.oninput=p.redraw;
+  // drag on the canvas
+  const drag=(e)=>{ const r=p.cv.getBoundingClientRect(); const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    const a=p.xmin + (cx-p.pad)/(p.W-2*p.pad)*(p.xmax-p.xmin); set(a); };
+  let down=false;
+  p.cv.addEventListener("pointerdown",(e)=>{down=true; drag(e);});
+  addEventListener("pointermove",(e)=>{ if(down) drag(e); });
+  addEventListener("pointerup",()=>down=false);
+  p.redraw();
+})();
+</script>
+</body>
+</html>

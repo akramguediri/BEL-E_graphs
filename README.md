@@ -28,6 +28,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Lever balance (moments, ΣM=0) | G5.1 Technical Mechanics | [`figures/lever-balance.html`](figures/lever-balance.html) |
 | Block and tackle (MA = 2) | G5.1 Technical Mechanics | [`figures/pulley-block.html`](figures/pulley-block.html) |
 | RFID gate vs barcode | G1 Logistics Systems | [`figures/rfid-gate.html`](figures/rfid-gate.html) |
+| Math Playground (interactive) | G3 Applied Mathematics | [`figures/math-playground.html`](figures/math-playground.html) |
 
 ## Setup (one-time)
 
