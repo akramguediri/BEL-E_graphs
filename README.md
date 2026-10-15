@@ -32,6 +32,10 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Rack & pinion (x = r·θ) | G5 Technology I | [`figures/rack-pinion.html`](figures/rack-pinion.html) |
 | Drive-in rack (LIFO) | G1 Logistics Systems | [`figures/drive-in-rack.html`](figures/drive-in-rack.html) |
 | Barcode structure (module X, quiet zone) | G1 Logistics Systems | [`figures/barcode.html`](figures/barcode.html) |
+| Gear motor (pressure → torque) | G5 Technology I | [`figures/gear-motor.html`](figures/gear-motor.html) |
+| Free body (tie tension / strut compression) | G5.1 Technical Mechanics | [`figures/free-body.html`](figures/free-body.html) |
+| Forklift moment balance | G1 Logistics Systems | [`figures/forklift.html`](figures/forklift.html) |
+| Column vs interlock stacking | G1 Logistics Systems | [`figures/pallet-stacking.html`](figures/pallet-stacking.html) |
 | Math Playground (interactive) | G3 Applied Mathematics | [`figures/math-playground.html`](figures/math-playground.html) |
 
 ## Setup (one-time)

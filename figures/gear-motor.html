@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gear motor</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5 Technology I · § Hydraulic motors</div>
+  <h1>Gear motor · pressure in, rotation out</h1>
+  <p>The <a href="vane-motor.html" style="color:var(--accent)">vane motor</a> is one rotary type; here's another. Two meshing gears sit in a tight housing. <b style="color:var(--pink)">High-pressure oil</b> enters on one side and can't get through the mesh, so it pushes the teeth round and is carried in the <b>tooth pockets</b> along the outer walls to the <b style="color:var(--accent)">low-pressure outlet</b>. Fluid power becomes torque. Turn it.</p>
+  <svg viewBox="0 0 760 320" id="svg"></svg>
+  <div class="ctrl"><label>shaft turn <span class="val" id="lt">0</span>°</label><input type="range" id="s" min="0" max="90" step="1" value="0"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),S=$("s");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",INK="#cfd3dc",FAINT="#3a3a42",STEEL="#8893a6";
+const cy=160,R=72,N=12,gap=4; const cxL=300,cxR=cxL+2*R-14;
+function gear(cx,dir,th){
+  const o=[`<circle cx="${cx}" cy="${cy}" r="${R-8}" fill="#121216" stroke="${STEEL}" stroke-width="1.5"/>`];
+  for(let i=0;i<N;i++){const a=i*2*Math.PI/N + dir*th;const x1=cx+Math.cos(a)*(R-8),y1=cy+Math.sin(a)*(R-8),x2=cx+Math.cos(a)*R,y2=cy+Math.sin(a)*R;const a2=a+2*Math.PI/N*0.45;const x3=cx+Math.cos(a2)*R,y3=cy+Math.sin(a2)*R,x4=cx+Math.cos(a2)*(R-8),y4=cy+Math.sin(a2)*(R-8);o.push(`<path d="M${x1} ${y1} L${x2} ${y2} L${x3} ${y3} L${x4} ${y4} Z" fill="#1c1d24" stroke="${STEEL}" stroke-width="1"/>`);}
+  o.push(`<line x1="${cx}" y1="${cy}" x2="${cx+Math.cos(dir*th-1.57)*(R-10)}" y2="${cy+Math.sin(dir*th-1.57)*(R-10)}" stroke="${INK}" stroke-width="2"/>`);
+  o.push(`<circle cx="${cx}" cy="${cy}" r="6" fill="${STEEL}"/>`);
+  return o.join("");
+}
+function draw(){
+  const th=+S.value*Math.PI/180; $("lt").textContent=(+S.value).toFixed(0);
+  const o=[];
+  // housing
+  o.push(`<path d="M${cxL-R-14} ${cy} a ${R+14} ${R+14} 0 1 1 0 1 M${cxR-R-14} ${cy}" fill="none"/>`);
+  o.push(`<rect x="${cxL-R-16}" y="${cy-R-16}" width="${(cxR-cxL)+2*(R+16)}" height="${2*(R+16)}" rx="${R+16}" fill="#0f1013" stroke="${FAINT}" stroke-width="2"/>`);
+  // inlet (bottom, high pressure) + outlet (top)
+  o.push(`<rect x="${(cxL+cxR)/2-16}" y="${cy+R+2}" width="32" height="40" fill="rgba(255,123,156,.25)" stroke="${PINK}"/>`);
+  o.push(`<line x1="${(cxL+cxR)/2}" y1="${cy+R+48}" x2="${(cxL+cxR)/2}" y2="${cy+R+10}" stroke="${PINK}" stroke-width="3" marker-end="url(#a)"/>`);
+  o.push(`<text x="${(cxL+cxR)/2}" y="${cy+R+62}" fill="${PINK}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">high-pressure IN</text>`);
+  o.push(`<rect x="${(cxL+cxR)/2-16}" y="${cy-R-42}" width="32" height="40" fill="rgba(91,140,255,.22)" stroke="${BLUE}"/>`);
+  o.push(`<line x1="${(cxL+cxR)/2}" y1="${cy-R-6}" x2="${(cxL+cxR)/2}" y2="${cy-R-44}" stroke="${BLUE}" stroke-width="3" marker-end="url(#ab)"/>`);
+  o.push(`<text x="${(cxL+cxR)/2}" y="${cy-R-50}" fill="${BLUE}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">low-pressure OUT</text>`);
+  // trapped fluid arcs along outer walls
+  o.push(`<path d="M ${cxL} ${cy+R+6} A ${R+10} ${R+10} 0 0 1 ${cxL-R-10} ${cy}" fill="none" stroke="${PINK}" stroke-width="3" stroke-dasharray="3 5" opacity=".7" marker-end="url(#ap)"/>`);
+  o.push(`<path d="M ${cxR} ${cy+R+6} A ${R+10} ${R+10} 0 0 0 ${cxR+R+10} ${cy}" fill="none" stroke="${PINK}" stroke-width="3" stroke-dasharray="3 5" opacity=".7" marker-end="url(#ap)"/>`);
+  // gears, opposite directions
+  o.push(gear(cxL,+1,th));
+  o.push(gear(cxR,-1,th));
+  $("svg").innerHTML=`<defs>
+    <marker id="a" markerWidth="8" markerHeight="8" refX="4" refY="7" orient="auto"><path d="M0,0 L4,7 L8,0" fill="none" stroke="#ff7b9c" stroke-width="2"/></marker>
+    <marker id="ab" markerWidth="8" markerHeight="8" refX="4" refY="7" orient="auto"><path d="M0,0 L4,7 L8,0" fill="none" stroke="#5b8cff" stroke-width="2"/></marker>
+    <marker id="ap" markerWidth="7" markerHeight="7" refX="4" refY="3.5" orient="auto"><path d="M0,0 L6,3.5 L0,7 Z" fill="#ff7b9c"/></marker>
+  </defs>`+o.join("");
+  $("r").innerHTML=`Oil can't squeeze through the mesh, so pressure on the exposed teeth makes torque — <b class="hl">T ∝ pressure × displacement</b>. It rides the <b class="hlp">tooth pockets</b> round the outside (dashed) to the <b class="hl2">outlet</b>. More flow → faster shaft; higher pressure → more torque. Simple, rugged, high-pressure.`;
+}
+S.addEventListener("input",draw); draw();
+</script>
+</body></html>

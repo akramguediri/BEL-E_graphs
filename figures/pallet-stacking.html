@@ -1,0 +1,56 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pallet stacking</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G1 Logistics Systems · § Unit loads</div>
+  <h1>Column vs interlock stacking</h1>
+  <p>How you arrange boxes on each layer is a trade-off. <b style="color:var(--accent)">Column</b> stacking puts every box straight on top of the one below — corners line up, so it carries weight best, but the layers aren't tied together and it leans easily. <b style="color:var(--accent2)">Interlock</b> turns alternate layers 90° so boxes bridge the seams below — much steadier, but each box bears less because the load spreads off its corners.</p>
+  <svg viewBox="0 0 760 320" id="svg"></svg>
+  <div class="seg"><button id="bc" class="on">Column</button><button id="bi">Interlock</button><button id="bn">Nudge the stack</button></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id);
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+let mode="col", lean=0;
+const baseX=230, palW=300, layerH=40, box=74, lanes=4;
+function layer(y,rot,shift){ // one layer of boxes, rot=interlock offset pattern index
+  const o=[]; const n=3;
+  for(let i=0;i<n;i++){
+    const w=rot? (i===1? box*1.4 : box*0.8) : box;
+    let x=baseX+6 + (rot? (i*(palW-12)/n + 6) : i*(box+ (palW-n*box)/(n+1)) + (palW-n*box)/(n+1));
+    x+=shift;
+    o.push(`<rect x="${x}" y="${y}" width="${w-6}" height="${layerH-6}" rx="3" fill="#17181e" stroke="${rot?AMB:BLUE}" stroke-width="1.4"/>`);
+  }
+  return o.join("");
+}
+function draw(){
+  const o=[]; const layers=5;
+  // pallet
+  o.push(`<rect x="${baseX}" y="${40+layers*layerH+4}" width="${palW}" height="14" fill="#1a1a20" stroke="${FAINT}"/>`);
+  o.push(`<line x1="40" y1="${40+layers*layerH+18}" x2="720" y2="${40+layers*layerH+18}" stroke="${FAINT}" stroke-width="2"/>`);
+  for(let L=0;L<layers;L++){
+    const y=40+(layers-1-L)*layerH;
+    const interlock = (mode==="int") && (L%2===1);
+    // lean grows toward the top; interlock resists (half the lean)
+    const resist = mode==="int"? 0.4 : 1;
+    const sh = lean*resist*(L+1)/layers*22;
+    o.push(layer(y, interlock, sh));
+  }
+  o.push(`<text x="${baseX+palW/2}" y="30" fill="${mode==='col'?BLUE:AMB}" font-size="13" text-anchor="middle" font-family="ui-monospace,monospace">${mode==='col'?'column — corners aligned':'interlock — layers rotated 90°'}</text>`);
+  $("svg").innerHTML=o.join("");
+  if(mode==="col") $("r").innerHTML = lean>0
+    ? `<b class="hlp">Column leans.</b> Nothing ties the layers together, so a nudge shears them sideways — the stack can topple. Its strength is purely <b>vertical</b>: aligned corners carry the most weight.`
+    : `<b class="hl2">Column:</b> every box dead over the one below → best <b>compression strength</b>, lowest stability. Good for strong boxes and shrink-wrapped loads.`;
+  else $("r").innerHTML = lean>0
+    ? `<b class="hlg">Interlock holds.</b> Rotated layers bridge the seams below and bond the stack, so the same nudge barely moves it — far more stable in transit.`
+    : `<b class="hl">Interlock:</b> alternate layers turned 90° bond the load together → best <b>stability</b>, but each box bears less (weight spreads off its corners).`;
+}
+$("bc").onclick=()=>{mode="col";$("bc").classList.add("on");$("bi").classList.remove("on");draw();};
+$("bi").onclick=()=>{mode="int";$("bi").classList.add("on");$("bc").classList.remove("on");draw();};
+$("bn").onclick=()=>{lean=lean?0:1;draw();};
+draw();
+</script>
+</body></html>

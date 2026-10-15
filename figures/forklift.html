@@ -1,0 +1,57 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forklift balance</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G1 Logistics Systems · § Materials handling</div>
+  <h1>Forklift · a seesaw on the front axle</h1>
+  <p>A loaded forklift balances on its <b style="color:var(--accent2)">front axle</b> like a seesaw. The <b>load</b> out front tips it forward; the truck's own weight and its <b style="color:var(--pink)">counterweight</b> at the back hold it down. The rating is a <b>load × distance</b> (a moment) at a stated <b>load centre</b>. Push the load out and watch the balance.</p>
+  <svg viewBox="0 0 760 320" id="svg"></svg>
+  <div class="ctrl"><label>load weight <span class="val" id="lw">1.0</span> t</label><input type="range" id="w" min="0.2" max="2.4" step="0.1" value="1.0"></div>
+  <div class="ctrl"><label>load centre <span class="val" id="ld">500</span> mm</label><input type="range" id="d" min="400" max="900" step="10" value="500"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),W=$("w"),D=$("d");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42",STEEL="#8893a6";
+const TRUCK=2.2, BACK=0.9; // truck weight t, counterweight CG distance behind axle (m)
+const axleX=430, groundY=250;
+function draw(){
+  const w=+W.value, d=+D.value/1000; $("lw").textContent=w.toFixed(1); $("ld").textContent=(+D.value).toFixed(0);
+  const Mload=w*d, Mstab=TRUCK*BACK;         // moments about front axle (t·m)
+  const tip=Mload>Mstab;
+  const ratio=Mstab>0?Mload/Mstab:0;
+  const tilt=Math.max(-0.06, Math.min(0.11,(ratio-1)*0.18)); // visual pitch
+  const o=[];
+  o.push(`<line x1="40" y1="${groundY}" x2="720" y2="${groundY}" stroke="${FAINT}" stroke-width="2"/>`);
+  // rotate whole truck slightly about the front axle
+  o.push(`<g transform="rotate(${tilt*57.3} ${axleX} ${groundY})">`);
+  // chassis
+  o.push(`<rect x="${axleX-170}" y="${groundY-78}" width="150" height="58" rx="6" fill="#15161b" stroke="${FAINT}"/>`);
+  // counterweight
+  o.push(`<rect x="${axleX-182}" y="${groundY-60}" width="40" height="40" rx="4" fill="${PINK}" opacity="0.5" stroke="${PINK}"/>`);
+  o.push(`<text x="${axleX-162}" y="${groundY-34}" fill="#0b0b0b" font-size="10" text-anchor="middle" font-family="ui-monospace,monospace">CW</text>`);
+  // mast + forks at front
+  o.push(`<rect x="${axleX+40}" y="${groundY-150}" width="12" height="130" fill="${STEEL}"/>`);
+  const forkY=groundY-22;
+  o.push(`<line x1="${axleX+52}" y1="${forkY}" x2="${axleX+52+ (+D.value)/6}" y2="${forkY}" stroke="${STEEL}" stroke-width="5"/>`);
+  // load box on forks, distance scaled
+  const lx=axleX+52+(+D.value)/6 - 44, lsz=24+w*18;
+  o.push(`<rect x="${lx}" y="${forkY-lsz}" width="${lsz+8}" height="${lsz}" rx="3" fill="rgba(255,178,77,.2)" stroke="${AMB}" stroke-width="1.6"/>`);
+  o.push(`<text x="${lx+(lsz+8)/2}" y="${forkY-lsz/2+4}" fill="${AMB}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">${w.toFixed(1)}t</text>`);
+  // wheels
+  o.push(`<circle cx="${axleX}" cy="${groundY}" r="18" fill="#1a1a20" stroke="${AMB}" stroke-width="2"/>`);
+  o.push(`<circle cx="${axleX-150}" cy="${groundY}" r="16" fill="#1a1a20" stroke="${FAINT}" stroke-width="2"/>`);
+  o.push(`</g>`);
+  // axle pivot marker + label
+  o.push(`<polygon points="${axleX-8},${groundY+22} ${axleX+8},${groundY+22} ${axleX},${groundY+6}" fill="${AMB}"/>`);
+  o.push(`<text x="${axleX}" y="${groundY+40}" fill="${AMB}" font-size="11" text-anchor="middle" font-family="ui-monospace,monospace">front axle = pivot</text>`);
+  $("svg").innerHTML=o.join("");
+  $("r").innerHTML = tip
+    ? `<b class="hlp">Tipping forward.</b> Load moment ${Mload.toFixed(2)} t·m &gt; stabilising ${Mstab.toFixed(2)} t·m. Either the load is too heavy or too far out — both multiply the same way, which is why capacity is quoted <b>at a load centre</b>.`
+    : `<b class="hlg">Stable.</b> Load moment W·d = ${w.toFixed(1)}·${d.toFixed(2)} = <b class="hl">${Mload.toFixed(2)} t·m</b> is held by the truck + counterweight ≈ ${Mstab.toFixed(2)} t·m. Push the load further out (bigger d) and the same weight can still tip it.`;
+}
+W.addEventListener("input",draw); D.addEventListener("input",draw); draw();
+</script>
+</body></html>

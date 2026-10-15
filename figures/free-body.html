@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free-body bracket</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5.1 Technical Mechanics · § Force systems, equilibrium</div>
+  <h1>Free body · a tie pulls, a strut pushes</h1>
+  <p>Hang a load on a wall bracket. The joint can't move, so the three forces on it must <b>cancel</b>. The horizontal bar gets <b style="color:var(--good)">stretched</b> — it's a <b>tie</b> in tension. The diagonal gets <b style="color:var(--pink)">squashed</b> — it's a <b>strut</b> in compression. Resolve the load into those two directions and you get their sizes. Change the angle.</p>
+  <svg viewBox="0 0 760 320" id="svg"></svg>
+  <div class="ctrl"><label>strut angle θ <span class="val" id="lt">35</span>°</label><input type="range" id="s" min="20" max="70" step="1" value="35"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id), S=$("s");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+const W=5; // load kN
+const wallX=120, topY=90, len=360; // tie length px
+function draw(){
+  const th=+S.value*Math.PI/180; $("lt").textContent=(+S.value).toFixed(0);
+  const jx=wallX+len, jy=topY;                 // joint
+  const botY=topY+len*Math.tan(th);            // strut anchor on wall
+  const o=[];
+  // wall
+  o.push(`<rect x="${wallX-26}" y="40" width="26" height="${botY-40+20}" fill="#15161b" stroke="${FAINT}"/>`);
+  for(let y=50;y<botY+10;y+=18)o.push(`<line x1="${wallX-26}" y1="${y}" x2="${wallX}" y2="${y-10}" stroke="${FAINT}" stroke-width="1"/>`);
+  // tie (top, tension) + strut (diagonal, compression)
+  o.push(`<line x1="${wallX}" y1="${topY}" x2="${jx}" y2="${jy}" stroke="${GOOD}" stroke-width="5"/>`);
+  o.push(`<line x1="${wallX}" y1="${botY}" x2="${jx}" y2="${jy}" stroke="${PINK}" stroke-width="6"/>`);
+  o.push(`<text x="${(wallX+jx)/2}" y="${topY-10}" fill="${GOOD}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">TIE · tension →←</text>`);
+  o.push(`<text x="${(wallX+jx)/2+20}" y="${(topY+botY)/2+28}" fill="${PINK}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">STRUT · compression</text>`);
+  // joint + load
+  o.push(`<circle cx="${jx}" cy="${jy}" r="7" fill="${INK}"/>`);
+  o.push(`<line x1="${jx}" y1="${jy}" x2="${jx}" y2="${jy+90}" stroke="${AMB}" stroke-width="3" marker-end="url(#a)"/>`);
+  o.push(`<text x="${jx+10}" y="${jy+70}" fill="${AMB}" font-size="13" font-family="ui-monospace,monospace">W = ${W} kN</text>`);
+  // force triangle (inset, bottom-left)
+  const ox=180,oy=250,sc=10; const C=W/Math.sin(th), T=W/Math.tan(th);
+  o.push(`<text x="${ox-30}" y="${oy-C*sc-6}" fill="${FAINT}" font-size="11" font-family="ui-monospace,monospace">force triangle</text>`);
+  o.push(`<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy-C*Math.sin(th)*sc}" stroke="${AMB}" stroke-width="3"/>`); // W down (drawn up as vector sum)
+  o.push(`<line x1="${ox}" y1="${oy-C*Math.sin(th)*sc}" x2="${ox+T*sc}" y2="${oy-C*Math.sin(th)*sc}" stroke="${GOOD}" stroke-width="3"/>`); // tie
+  o.push(`<line x1="${ox+T*sc}" y1="${oy-C*Math.sin(th)*sc}" x2="${ox}" y2="${oy}" stroke="${PINK}" stroke-width="3"/>`); // strut closes
+  $("svg").innerHTML=`<defs><marker id="a" markerWidth="8" markerHeight="8" refX="4" refY="7" orient="auto"><path d="M0,0 L4,7 L8,0" fill="none" stroke="#ffb24d" stroke-width="2"/></marker></defs>`+o.join("");
+  $("r").innerHTML=`At θ = ${(+S.value)}°, balance the joint: up must equal down → strut carries <b class="hlp">C = W/sinθ = ${C.toFixed(1)} kN</b> (pushing). Left must equal right → tie carries <b class="hlg">T = W/tanθ = ${T.toFixed(1)} kN</b> (pulling). <b>Shallower angle → much bigger forces</b> for the same load.`;
+}
+S.addEventListener("input",draw); draw();
+</script>
+</body></html>
