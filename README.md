@@ -26,6 +26,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Strapping (tension → compression) | G1 Logistics Systems | [`figures/strapping.html`](figures/strapping.html) |
 | Order picking (person-to-goods) | G1 Logistics Systems | [`figures/order-picking.html`](figures/order-picking.html) |
 | Lever balance (moments, ΣM=0) | G5.1 Technical Mechanics | [`figures/lever-balance.html`](figures/lever-balance.html) |
+| Block and tackle (MA = 2) | G5.1 Technical Mechanics | [`figures/pulley-block.html`](figures/pulley-block.html) |
 
 ## Setup (one-time)
 
