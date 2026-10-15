@@ -19,6 +19,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | DC motor + commutator | G5 Technology I | [`figures/dc-motor.html`](figures/dc-motor.html) |
 | Three-phase rotating field | G5 Technology I | [`figures/three-phase.html`](figures/three-phase.html) |
 | Boyle–Mariotte law (p·V = const) | G5 Technology I | [`figures/boyle-law.html`](figures/boyle-law.html) |
+| Vane motor | G5 Technology I | [`figures/vane-motor.html`](figures/vane-motor.html) |
 
 ## Setup (one-time)
 
