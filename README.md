@@ -21,6 +21,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Boyle–Mariotte law (p·V = const) | G5 Technology I | [`figures/boyle-law.html`](figures/boyle-law.html) |
 | Vane motor | G5 Technology I | [`figures/vane-motor.html`](figures/vane-motor.html) |
 | Cushioning drop test (a = g·h/d) | G1 Logistics Systems | [`figures/cushioning.html`](figures/cushioning.html) |
+| Conveyor sorter (pusher switch) | G1 Logistics Systems | [`figures/sortation.html`](figures/sortation.html) |
 
 ## Setup (one-time)
 
