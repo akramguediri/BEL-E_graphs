@@ -25,6 +25,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Gravity flow rack (FIFO) | G1 Logistics Systems | [`figures/flow-rack.html`](figures/flow-rack.html) |
 | Strapping (tension → compression) | G1 Logistics Systems | [`figures/strapping.html`](figures/strapping.html) |
 | Order picking (person-to-goods) | G1 Logistics Systems | [`figures/order-picking.html`](figures/order-picking.html) |
+| Lever balance (moments, ΣM=0) | G5.1 Technical Mechanics | [`figures/lever-balance.html`](figures/lever-balance.html) |
 
 ## Setup (one-time)
 
