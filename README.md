@@ -14,6 +14,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Double-acting cylinder + 4/2 valve | G5 Technology I | [`figures/pneumatic-cylinder.html`](figures/pneumatic-cylinder.html) |
 | Packaging hierarchy (pallet → item) | G1 Logistics Systems | [`figures/packaging-hierarchy.html`](figures/packaging-hierarchy.html) |
 | Spring scale (Hooke's law) | G5.1 Technical Mechanics | [`figures/spring-scale.html`](figures/spring-scale.html) |
+| Strain-gauge load cell + Wheatstone bridge | G5 Technology I | [`figures/strain-gauge.html`](figures/strain-gauge.html) |
 
 ## Setup (one-time)
 
