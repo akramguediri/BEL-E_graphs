@@ -15,6 +15,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Packaging hierarchy (pallet → item) | G1 Logistics Systems | [`figures/packaging-hierarchy.html`](figures/packaging-hierarchy.html) |
 | Spring scale (Hooke's law) | G5.1 Technical Mechanics | [`figures/spring-scale.html`](figures/spring-scale.html) |
 | Strain-gauge load cell + Wheatstone bridge | G5 Technology I | [`figures/strain-gauge.html`](figures/strain-gauge.html) |
+| High-bay warehouse + SRM | G1 Logistics Systems | [`figures/high-bay.html`](figures/high-bay.html) |
 
 ## Setup (one-time)
 
