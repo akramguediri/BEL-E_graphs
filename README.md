@@ -36,6 +36,10 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Free body (tie tension / strut compression) | G5.1 Technical Mechanics | [`figures/free-body.html`](figures/free-body.html) |
 | Forklift moment balance | G1 Logistics Systems | [`figures/forklift.html`](figures/forklift.html) |
 | Column vs interlock stacking | G1 Logistics Systems | [`figures/pallet-stacking.html`](figures/pallet-stacking.html) |
+| Synchronous vs asynchronous (slip) | G5 Technology I | [`figures/motor-slip.html`](figures/motor-slip.html) |
+| DC motor series vs shunt | G5 Technology I | [`figures/dc-series-shunt.html`](figures/dc-series-shunt.html) |
+| Four ways to load a beam (strength of materials) | G5.1 Technical Mechanics | [`figures/beam-loads.html`](figures/beam-loads.html) |
+| Pallets in a container (floor utilisation) | G1 Logistics Systems | [`figures/container-fit.html`](figures/container-fit.html) |
 | Math Playground (interactive) | G3 Applied Mathematics | [`figures/math-playground.html`](figures/math-playground.html) |
 
 ## Setup (one-time)

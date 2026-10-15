@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beam loads</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5.1 Technical Mechanics · § Strength of materials</div>
+  <h1>Four ways to load a beam</h1>
+  <p>Strength of materials is really about four basic internal stresses. <b style="color:var(--good)">Tension</b> pulls fibres apart; <b style="color:var(--accent)">compression</b> pushes them together; <b style="color:var(--accent2)">shear</b> slides one layer past the next; <b style="color:var(--pink)">bending</b> does both at once (stretched on one face, squashed on the other); and <b>torsion</b> twists it. Pick one and push the load up.</p>
+  <svg viewBox="0 0 760 300" id="svg"></svg>
+  <div class="seg"><button data-m="tension" class="on">Tension</button><button data-m="shear">Shear</button><button data-m="bending">Bending</button><button data-m="torsion">Torsion</button></div>
+  <div class="ctrl"><label>load <span class="val" id="lf">50</span>%</label><input type="range" id="f" min="0" max="100" step="1" value="50"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),F=$("f");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42",STEEL="#8893a6";
+let mode="tension";
+const cy=150,x0=170,x1=590,h=56;
+function arrow(x1_,y1_,x2_,y2_,c){return `<line x1="${x1_}" y1="${y1_}" x2="${x2_}" y2="${y2_}" stroke="${c}" stroke-width="3" color="${c}" marker-end="url(#a)"/>`;}
+function draw(){
+  const f=+F.value/100; $("lf").textContent=(+F.value).toFixed(0);
+  const o=[]; const top=cy-h/2,bot=cy+h/2;
+  // supports/wall for bending & torsion (cantilever), grips for tension/shear
+  if(mode==="tension"){
+    const d=f*34;
+    o.push(`<rect x="${x0-d}" y="${top}" width="${x1-x0+2*d}" height="${h}" rx="4" fill="#15161b" stroke="${GOOD}" stroke-width="1.6"/>`);
+    // fibre lines stretched
+    for(let i=1;i<5;i++){const y=top+i*h/5;o.push(`<line x1="${x0-d+10}" y1="${y}" x2="${x1+d-10}" y2="${y}" stroke="${GOOD}" stroke-width="1" opacity=".5"/>`);}
+    o.push(arrow(x0-d,cy,x0-d-40,cy,GOOD)); o.push(arrow(x1+d,cy,x1+d+40,cy,GOOD));
+    o.push(`<text x="400" y="${bot+56}" fill="${GOOD}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">pulled apart · stress σ = F / A</text>`);
+  } else if(mode==="shear"){
+    const d=f*26;
+    o.push(`<rect x="${x0}" y="${top}" width="${x1-x0}" height="${h/2}" rx="3" fill="#15161b" stroke="${AMB}" stroke-width="1.4" transform="translate(${d},0)"/>`);
+    o.push(`<rect x="${x0}" y="${cy}" width="${x1-x0}" height="${h/2}" rx="3" fill="#15161b" stroke="${AMB}" stroke-width="1.4" transform="translate(${-d},0)"/>`);
+    o.push(arrow(x1,cy-h/4,x1+40,cy-h/4,AMB)); o.push(arrow(x0,cy+h/4,x0-40,cy+h/4,AMB));
+    o.push(`<text x="400" y="${bot+56}" fill="${AMB}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">layers slide past each other · τ = F / A</text>`);
+  } else if(mode==="bending"){
+    o.push(`<rect x="${x0-30}" y="60" width="26" height="180" fill="#1a1a20" stroke="${FAINT}"/>`); // wall
+    const sag=f*44, n=40, tp=[],bp=[],cp=[];
+    for(let i=0;i<=n;i++){const t=i/n;const x=x0+t*(x1-x0);const dy=sag*t*t;tp.push([x,top+dy]);bp.push([x,bot+dy]);cp.push([x,cy+dy]);}
+    const toPath=a=>"M "+a.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L ");
+    const band="M "+tp.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L ")+" L "+bp.slice().reverse().map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L ")+" Z";
+    o.push(`<path d="${band}" fill="rgba(255,123,156,.08)" stroke="none"/>`);
+    o.push(`<path d="${toPath(tp)}" fill="none" stroke="${BLUE}" stroke-width="2.5"/>`); // top compression
+    o.push(`<path d="${toPath(bp)}" fill="none" stroke="${GOOD}" stroke-width="2.5"/>`); // bottom tension
+    o.push(`<path d="${toPath(cp)}" fill="none" stroke="${FAINT}" stroke-width="1" stroke-dasharray="4 4"/>`); // neutral axis
+    o.push(arrow(x1,cy+sag,x1,cy+sag+46,PINK));
+    o.push(`<text x="${x0+40}" y="${top-6}" fill="${BLUE}" font-size="11" font-family="ui-monospace,monospace">top: compression</text>`);
+    o.push(`<text x="${x0+40}" y="${bot+70}" fill="${GOOD}" font-size="11" font-family="ui-monospace,monospace">bottom: tension · dashed = neutral axis (no stress)</text>`);
+  } else { // torsion
+    o.push(`<rect x="${x0-30}" y="60" width="26" height="180" fill="#1a1a20" stroke="${FAINT}"/>`);
+    o.push(`<rect x="${x0}" y="${top}" width="${x1-x0}" height="${h}" rx="4" fill="#15161b" stroke="${STEEL}" stroke-width="1.4"/>`);
+    // twist: draw a helix line along the beam
+    const tw=f*2.4,n=50;let d="M";for(let i=0;i<=n;i++){const t=i/n;const x=x0+t*(x1-x0);const y=cy+Math.sin(t*6+tw*3)*(h/2-6)* (0.3+t*0.7);d+=(i?` L`:``)+` ${x.toFixed(1)} ${y.toFixed(1)}`;}
+    o.push(`<path d="${d}" fill="none" stroke="${PINK}" stroke-width="2"/>`);
+    // twist arrow at free end
+    o.push(`<path d="M ${x1+10} ${cy-20} A 22 22 0 1 1 ${x1+10} ${cy+20}" fill="none" stroke="${PINK}" color="${PINK}" stroke-width="3" marker-end="url(#a)"/>`);
+    o.push(`<text x="400" y="${bot+56}" fill="${PINK}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">twisted about its axis · torque T</text>`);
+  }
+  $("svg").innerHTML=`<defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 Z" fill="currentColor"/></marker></defs>`+o.join("");
+  const txt={tension:`<b class="hlg">Tension:</b> the pull F spread over the cross-section A gives stress σ = F/A. Every fibre stretches the same — simplest case.`,
+    shear:`<b class="hl">Shear:</b> forces offset across the section make one layer slide over the next. τ = F/A, but across the cut, not along it. Think scissors.`,
+    bending:`<b class="hlp">Bending = tension + compression together.</b> One face stretches, the other squashes, and a <b>neutral axis</b> in the middle feels nothing. That's why I-beams put material top &amp; bottom.`,
+    torsion:`<b class="hlp">Torsion:</b> a twisting torque shears the material in circles around the axis — outer skin works hardest, the centre barely at all (so shafts are often hollow).`};
+  $("r").innerHTML=txt[mode];
+}
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll(".seg button").forEach(x=>x.classList.remove("on"));b.classList.add("on");draw();});
+F.addEventListener("input",draw); draw();
+</script>
+</body></html>

@@ -1,0 +1,44 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DC series vs shunt</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5 Technology I · § DC machines</div>
+  <h1>DC motor · series vs shunt</h1>
+  <p>Same <a href="dc-motor.html" style="color:var(--accent)">DC motor</a>, two ways to wire the field coil. In a <b style="color:var(--pink)">series</b> motor the field carries the full armature current, so torque rockets at startup but the speed <b>collapses under load</b> (and races dangerously when unloaded). In a <b style="color:var(--accent)">shunt</b> motor the field sits across the supply, roughly constant, so the speed <b>barely changes</b> with load. Drag the load.</p>
+  <svg viewBox="0 0 760 320" id="svg"></svg>
+  <div class="ctrl"><label>load torque <span class="val" id="lt">30</span>%</label><input type="range" id="t" min="2" max="100" step="1" value="30"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),T=$("t");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+// plot area: x = load torque 0..1, y = speed
+const px0=90,px1=690,py0=60,py1=250;
+const X=t=>px0+t*(px1-px0), Y=s=>py1-s*(py1-py0);
+const series=t=>0.95/Math.sqrt(t+0.06)-0.1;      // speed ~ 1/sqrt(T): runs away low T, sags
+const shunt =t=>0.86-0.12*t;                       // nearly flat, slight droop
+function curve(f,col){let d="M";for(let i=0;i<=60;i++){const t=i/60;let s=f(t);s=Math.max(0,Math.min(1.15,s));d+=` ${X(t).toFixed(1)} ${Y(s).toFixed(1)}`+(i?"":" ");if(i===0)d=`M ${X(t).toFixed(1)} ${Y(s).toFixed(1)} L`;}return `<path d="${d}" fill="none" stroke="${col}" stroke-width="3"/>`;}
+function draw(){
+  const t=+T.value/100; $("lt").textContent=(+T.value).toFixed(0);
+  const o=[];
+  // axes
+  o.push(`<line x1="${px0}" y1="${py0-6}" x2="${px0}" y2="${py1}" stroke="${FAINT}" stroke-width="1.5"/>`);
+  o.push(`<line x1="${px0}" y1="${py1}" x2="${px1+6}" y2="${py1}" stroke="${FAINT}" stroke-width="1.5"/>`);
+  o.push(`<text x="${px0-10}" y="${py0}" fill="${FAINT}" font-size="12" text-anchor="end" font-family="ui-monospace,monospace">speed</text>`);
+  o.push(`<text x="${px1}" y="${py1+22}" fill="${FAINT}" font-size="12" text-anchor="end" font-family="ui-monospace,monospace">load torque →</text>`);
+  o.push(curve(series,PINK)); o.push(curve(shunt,BLUE));
+  o.push(`<text x="${X(0.78)}" y="${Y(shunt(0.78))-10}" fill="${BLUE}" font-size="12" font-family="ui-monospace,monospace">shunt — flat</text>`);
+  o.push(`<text x="${X(0.1)}" y="${Y(Math.min(1.1,series(0.1)))-6}" fill="${PINK}" font-size="12" font-family="ui-monospace,monospace">series</text>`);
+  // operating dots
+  const ss=Math.max(0,Math.min(1.15,series(t))), sh=shunt(t);
+  o.push(`<line x1="${X(t)}" y1="${py0-6}" x2="${X(t)}" y2="${py1}" stroke="${AMB}" stroke-width="1" stroke-dasharray="3 4"/>`);
+  o.push(`<circle cx="${X(t)}" cy="${Y(ss)}" r="6" fill="${PINK}"/>`);
+  o.push(`<circle cx="${X(t)}" cy="${Y(sh)}" r="6" fill="${BLUE}"/>`);
+  $("svg").innerHTML=o.join("");
+  $("r").innerHTML=`At ${(+T.value)}% load → <b class="hl2">shunt holds ~${(sh*100).toFixed(0)}%</b> speed, while the <b class="hlp">series runs at ${(ss*100).toFixed(0)}%</b>. Series gives the huge starting pull that cranes and traction need; shunt gives the steady speed that machine tools and conveyors need. ${t<0.12?'<b class="hlp">Light load → series overspeeds</b> — never run a series motor unloaded.':''}`;
+}
+T.addEventListener("input",draw); draw();
+</script>
+</body></html>

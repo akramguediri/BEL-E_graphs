@@ -1,0 +1,57 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pallets in a container</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G1 Logistics Systems · § Load planning</div>
+  <h1>Pallets in a container · floor utilisation</h1>
+  <p>A 20-ft container floor is about <b>5.90 m × 2.35 m</b>. How well pallets fill it depends entirely on which pallet and which way you turn them. The <b style="color:var(--accent)">EUR pallet</b> (1.20 × 0.80 m) and the <b style="color:var(--accent2)">industrial / block pallet</b> (1.20 × 1.00 m) pack very differently — that's why real utilisation lands around <b>76–95%</b>. Try the layouts.</p>
+  <svg viewBox="0 0 760 300" id="svg"></svg>
+  <div class="seg"><button data-m="eur" class="on">EUR mixed (11)</button><button data-m="grid">EUR plain grid (8)</button><button data-m="ind">Industrial 1.2×1.0</button></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id);
+const BLUE="#5b8cff",AMB="#ffb24d",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+let mode="eur";
+const CL=5.90, CW=2.35; // container floor m (x = along length, y = across width)
+const ox=70,oy=70, sc=108; // px per m
+const CWpx=CL*sc, CHpx=CW*sc;
+// each layout: list of pallets {x,y,w,d} in metres (w along length, d across width)
+function layoutEUR(){ // realistic mixed load = 11 EUR pallets in a 20ft
+  const out=[];
+  // band 1 (y 0..1.20): 7 pallets turned 1.20 across × 0.80 along
+  for(let i=0;i<7;i++) out.push({x:i*0.80,y:0,w:0.80,d:1.20,c:AMB});
+  // band 2 (y 1.20..2.00): 4 pallets turned 0.80 across × 1.20 along
+  for(let i=0;i<4;i++) out.push({x:i*1.20,y:1.20,w:1.20,d:0.80,c:BLUE});
+  return out;
+}
+function layoutGRID(){ // naive single-orientation grid = only 8
+  const out=[], pw=1.20,pd=0.80;
+  for(let r=0;r<Math.floor(CW/pd);r++)for(let c=0;c<Math.floor(CL/pw);c++)out.push({x:c*pw,y:r*pd,w:pw,d:pd,c:AMB});
+  return out;
+}
+function layoutIND(){ // industrial 1.2 × 1.0
+  const out=[], pw=1.20,pd=1.00;
+  for(let r=0;r<Math.floor(CW/pd);r++)for(let c=0;c<Math.floor(CL/pw);c++)out.push({x:c*pw,y:r*pd,w:pw,d:pd,c:BLUE});
+  return out;
+}
+function draw(){
+  const pals = mode==="eur"?layoutEUR():mode==="grid"?layoutGRID():layoutIND();
+  const o=[];
+  o.push(`<rect x="${ox}" y="${oy}" width="${CWpx}" height="${CHpx}" fill="#0f1013" stroke="${INK}" stroke-width="2"/>`);
+  o.push(`<text x="${ox}" y="${oy-10}" fill="${FAINT}" font-size="11" font-family="ui-monospace,monospace">20-ft floor · 5.90 × 2.35 m</text>`);
+  let area=0;
+  for(const p of pals){o.push(`<rect x="${ox+p.x*sc+1.5}" y="${oy+p.y*sc+1.5}" width="${p.w*sc-3}" height="${p.d*sc-3}" rx="2" fill="${p.c}22" stroke="${p.c}" stroke-width="1.4"/>`);area+=p.w*p.d;}
+  o.push(`<text x="${ox+CWpx}" y="${oy+CHpx+20}" fill="${FAINT}" font-size="11" text-anchor="end" font-family="ui-monospace,monospace">${pals.length} pallets</text>`);
+  $("svg").innerHTML=o.join("");
+  const util=area/(CL*CW)*100;
+  const names={eur:"EUR pallets, two orientations mixed",grid:"EUR pallets, one plain orientation",ind:"Industrial pallets, 1.20 × 1.00 m"};
+  const note={eur:'Turning one band 90° so pallets interlock fits <b>11</b> instead of 8 — the standard 20-ft EUR load, right at the bottom of the band.',grid:'A single orientation leaves a 0.75 m strip empty down one side: fast to load, but only 8 pallets.',ind:'The larger 1.0 m footprint wastes the leftover width — fewer units than EUR for the same floor.'};
+  $("r").innerHTML=`<b class="hl2">${names[mode]}:</b> ${pals.length} pallets cover ${area.toFixed(1)} m² of ${(CL*CW).toFixed(1)} m² → <b class="${util>74?'hlg':'hl'}">floor utilisation ${util.toFixed(0)}%</b>. ${note[mode]} The gap between layouts is exactly why planners chase that 76–95% band.`;
+}
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll(".seg button").forEach(x=>x.classList.remove("on"));b.classList.add("on");draw();});
+draw();
+</script>
+</body></html>

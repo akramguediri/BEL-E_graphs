@@ -1,0 +1,58 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Synchronous vs asynchronous</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5 Technology I · § AC machines</div>
+  <h1>Synchronous vs asynchronous · slip</h1>
+  <p>The stator makes a <a href="three-phase.html" style="color:var(--accent)">rotating field</a> that spins at the fixed <b>synchronous speed</b> n<sub>s</sub>. A <b style="color:var(--accent2)">synchronous</b> motor's rotor is magnetised and locks to it exactly. A <b style="color:var(--pink)">squirrel-cage (asynchronous)</b> rotor has no magnet — it can only make torque by <b>lagging behind</b> the field so the field cuts its bars and induces current. That lag is the <b>slip</b>. Add load and watch it fall further behind.</p>
+  <svg viewBox="0 0 760 300" id="svg"></svg>
+  <div class="seg"><button id="as" class="on">asynchronous (cage)</button><button id="sy">synchronous</button></div>
+  <div class="ctrl"><label>mechanical load <span class="val" id="ll">30</span>%</label><input type="range" id="l" min="0" max="100" step="1" value="30"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),L=$("l");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+let async=true, fieldA=0, last=0, raf=0, vis=true;
+const cx=380,cy=165,R=92;
+function frame(now){
+  const dt=last?Math.min((now-last)/1000,0.05):0.016; last=now;
+  const load=+L.value/100;
+  const ns=1.4; // field angular speed (rad/s visual)
+  const slip = async? (0.02+load*0.10) : 0; // cage slip grows with load; sync = 0
+  fieldA += ns*dt;
+  const rotorA = fieldA*(1-slip); // trails
+  const o=[];
+  o.push(`<circle cx="${cx}" cy="${cy}" r="${R+14}" fill="#0f1013" stroke="${FAINT}" stroke-width="2"/>`);
+  for(let i=0;i<24;i++){const a=i*Math.PI/12;o.push(`<line x1="${cx+Math.cos(a)*(R+2)}" y1="${cy+Math.sin(a)*(R+2)}" x2="${cx+Math.cos(a)*(R+14)}" y2="${cy+Math.sin(a)*(R+14)}" stroke="${FAINT}" stroke-width="1"/>`);}
+  // rotor disc
+  o.push(`<circle cx="${cx}" cy="${cy}" r="${R-18}" fill="#141418" stroke="#2a2a32"/>`);
+  // field vector
+  o.push(`<line x1="${cx}" y1="${cy}" x2="${cx+Math.cos(fieldA)*R}" y2="${cy+Math.sin(fieldA)*R}" stroke="${BLUE}" stroke-width="4" marker-end="url(#af)"/>`);
+  // rotor vector
+  o.push(`<line x1="${cx}" y1="${cy}" x2="${cx+Math.cos(rotorA)*(R-20)}" y2="${cy+Math.sin(rotorA)*(R-20)}" stroke="${async?PINK:AMB}" stroke-width="5" marker-end="url(#ar)"/>`);
+  // lag wedge
+  if(async){o.push(`<path d="M ${cx} ${cy} L ${cx+Math.cos(fieldA)*40} ${cy+Math.sin(fieldA)*40} A 40 40 0 0 0 ${cx+Math.cos(rotorA)*40} ${cy+Math.sin(rotorA)*40} Z" fill="rgba(255,123,156,.25)"/>`);}
+  o.push(`<circle cx="${cx}" cy="${cy}" r="7" fill="${INK}"/>`);
+  o.push(`<text x="${cx+R+30}" y="${cy-70}" fill="${BLUE}" font-size="12" font-family="ui-monospace,monospace">field n_s</text>`);
+  o.push(`<text x="${cx+R+30}" y="${cy-50}" fill="${async?PINK:AMB}" font-size="12" font-family="ui-monospace,monospace">rotor n</text>`);
+  $("svg").innerHTML=`<defs>
+   <marker id="af" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 Z" fill="#5b8cff"/></marker>
+   <marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 Z" fill="${async?'#ff7b9c':'#ffb24d'}"/></marker>
+  </defs>`+o.join("");
+  $("ll").textContent=(+L.value).toFixed(0);
+  const sPct=(slip*100).toFixed(1);
+  $("r").innerHTML = async
+    ? `<b class="hlp">Asynchronous:</b> rotor trails the field by <b class="hlp">slip s = ${sPct}%</b> (n = n<sub>s</sub>·(1−s)). No lag → no induced current → no torque, so it <b>never</b> catches the field. More load → more slip. At zero load it almost reaches n<sub>s</sub>.`
+    : `<b class="hl">Synchronous:</b> rotor is magnetised and <b>locked</b> to the field — <b class="hl">slip = 0</b>, speed exactly n<sub>s</sub> whatever the load (until it pulls out of step). Field and rotor arrows stay aligned.`;
+  raf = vis? requestAnimationFrame(frame):0;
+}
+function run(){if(!raf&&vis){last=0;raf=requestAnimationFrame(frame);}}
+$("as").onclick=()=>{async=true;$("as").classList.add("on");$("sy").classList.remove("on");};
+$("sy").onclick=()=>{async=false;$("sy").classList.add("on");$("as").classList.remove("on");};
+new IntersectionObserver(e=>{vis=e[e.length-1].isIntersecting;if(vis)run();}).observe($("svg"));
+run();
+</script>
+</body></html>
