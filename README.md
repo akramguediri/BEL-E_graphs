@@ -24,6 +24,7 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | Conveyor sorter (pusher switch) | G1 Logistics Systems | [`figures/sortation.html`](figures/sortation.html) |
 | Gravity flow rack (FIFO) | G1 Logistics Systems | [`figures/flow-rack.html`](figures/flow-rack.html) |
 | Strapping (tension → compression) | G1 Logistics Systems | [`figures/strapping.html`](figures/strapping.html) |
+| Order picking (person-to-goods) | G1 Logistics Systems | [`figures/order-picking.html`](figures/order-picking.html) |
 
 ## Setup (one-time)
 
