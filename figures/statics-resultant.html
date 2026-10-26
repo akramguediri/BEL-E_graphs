@@ -1,0 +1,46 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resultant force</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5.1 Technical Mechanics · § Forces, resultants</div>
+  <h1>Two forces, one resultant</h1>
+  <p>Two forces with a common point of attack combine into a single resultant by the <b>parallelogram rule</b>. Drag the angle between them: at 0° they add fully, at 180° they fight each other, and at 90° the resultant is the hypotenuse of the force triangle.</p>
+  <svg viewBox="0 0 760 320" id="svg"></svg>
+  <div class="ctrl"><label>F1 <span class="val" id="l1">60</span> N</label><input type="range" id="f1" min="0" max="100" step="1" value="60"></div>
+  <div class="ctrl"><label>F2 <span class="val" id="l2">40</span> N</label><input type="range" id="f2" min="0" max="100" step="1" value="40"></div>
+  <div class="ctrl"><label>angle between F1 and F2 <span class="val" id="lt">60</span>°</label><input type="range" id="th" min="0" max="180" step="1" value="60"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),F1=$("f1"),F2=$("f2"),TH=$("th");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+function arrow(x1,y1,x2,y2,c){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="3" marker-end="url(#a)"/>`;}
+function draw(){
+  const f1=+F1.value,f2=+F2.value,th=+TH.value*Math.PI/180;
+  $("l1").textContent=f1;$("l2").textContent=f2;$("lt").textContent=TH.value;
+  const R=Math.sqrt(f1*f1+f2*f2+2*f1*f2*Math.cos(th));
+  const phi=Math.atan2(f2*Math.sin(th),f1+f2*Math.cos(th))*180/Math.PI;
+  const ox=140,oy=250,sc=2.2;
+  const x1=ox+f1*sc,y1=oy;
+  const x2=ox+f2*sc*Math.cos(th),y2=oy-f2*sc*Math.sin(th);
+  const rx=ox+R*sc*Math.cos(phi*Math.PI/180),ry=oy-R*sc*Math.sin(phi*Math.PI/180);
+  const px=x1+(x2-ox),py=y1+(y2-oy);
+  const o=[];
+  o.push(`<line x1="${ox}" y1="${oy}" x2="${px}" y2="${py}" stroke="${FAINT}" stroke-width="1" stroke-dasharray="4 4"/>`);
+  o.push(`<line x1="${x1}" y1="${y1}" x2="${px}" y2="${py}" stroke="${FAINT}" stroke-width="1" stroke-dasharray="4 4"/>`);
+  o.push(`<line x1="${x2}" y1="${y2}" x2="${px}" y2="${py}" stroke="${FAINT}" stroke-width="1" stroke-dasharray="4 4"/>`);
+  o.push(arrow(ox,oy,x1,y1,GOOD));
+  o.push(arrow(ox,oy,x2,y2,AMB));
+  o.push(arrow(ox,oy,rx,ry,PINK));
+  o.push(`<circle cx="${ox}" cy="${oy}" r="6" fill="${INK}"/>`);
+  o.push(`<text x="${x1+8}" y="${y1-8}" fill="${GOOD}" font-size="13" font-family="ui-monospace,monospace">F1 = ${f1} N</text>`);
+  o.push(`<text x="${x2+8}" y="${y2-8}" fill="${AMB}" font-size="13" font-family="ui-monospace,monospace">F2 = ${f2} N</text>`);
+  o.push(`<text x="${rx+8}" y="${ry-8}" fill="${PINK}" font-size="13" font-family="ui-monospace,monospace">R</text>`);
+  $("svg").innerHTML=`<defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 Z" fill="currentColor"/></marker></defs>`+o.join("");
+  $("r").innerHTML=`Resultant <b class="hlp">R = sqrt(F1² + F2² + 2·F1·F2·cosθ) = ${R.toFixed(1)} N</b>, at <b class="hlp">φ = ${phi.toFixed(1)}°</b> from F1. Components of F2: Fx = ${ (f2*Math.cos(th)).toFixed(1)} N, Fy = ${(f2*Math.sin(th)).toFixed(1)} N. Check: at θ = 0°, R = F1 + F2; at θ = 180°, R = |F1 - F2|.`;
+}
+[F1,F2,TH].forEach(e=>e.addEventListener("input",draw)); draw();
+</script>
+</body></html>

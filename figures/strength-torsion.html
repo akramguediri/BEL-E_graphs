@@ -1,0 +1,43 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Torsion</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5.1 Technical Mechanics · § Torsion</div>
+  <h1>Torsion: stress grows with radius</h1>
+  <p>Twist a circular shaft and the centre carries nothing. Shear stress grows <b>linearly with radius</b>: τ = Mt·r / Ip, largest at the surface. Twist angle follows φ = Mt·l / (G·Ip), with G = 80,000 N/mm² for steel here.</p>
+  <svg viewBox="0 0 760 320" id="svg"></svg>
+  <div class="ctrl"><label>torque Mt <span class="val" id="lt">200</span> Nm</label><input type="range" id="t" min="0" max="500" step="10" value="200"></div>
+  <div class="ctrl"><label>diameter d <span class="val" id="ld">50</span> mm</label><input type="range" id="d" min="20" max="100" step="5" value="50"></div>
+  <div class="ctrl"><label>length l <span class="val" id="ll">1.0</span> m</label><input type="range" id="l" min="0.5" max="2" step="0.1" value="1"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),T=$("t"),D=$("d"),L=$("l");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42",G=80000;
+function draw(){
+  const mt=+T.value,d=+D.value,l=+L.value;
+  $("lt").textContent=mt;$("ld").textContent=d;$("ll").textContent=l.toFixed(1);
+  const Ip=Math.PI*Math.pow(d,4)/32,Wp=Math.PI*Math.pow(d,3)/16,tau=mt*1000/Wp,phi=mt*1000*(l*1000)/(G*Ip),deg=phi*180/Math.PI;
+  const cx=200,cy=160,R=110;
+  const o=[];
+  o.push(`<circle cx="${cx}" cy="${cy}" r="${R}" fill="#15161b" stroke="${INK}" stroke-width="1.5"/>`);
+  for(let rr=20;rr<R;rr+=20)o.push(`<circle cx="${cx}" cy="${cy}" r="${rr}" fill="none" stroke="${FAINT}" stroke-width="1"/>`);
+  o.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="${INK}"/>`);
+  o.push(`<line x1="${cx}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="${PINK}" stroke-width="3"/>`);
+  o.push(`<text x="${cx+R+10}" y="${cy+5}" fill="${PINK}" font-size="13" font-family="ui-monospace,monospace">r_max</text>`);
+  o.push(`<text x="${cx}" y="${cy+R+28}" fill="${FAINT}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">centre: τ = 0 · surface: τmax</text>`);
+  const gx=430,gy0=60,gy1=260,gw=220;
+  o.push(`<line x1="${gx}" y1="${gy0}" x2="${gx}" y2="${gy1}" stroke="${FAINT}" stroke-width="1"/>`);
+  o.push(`<line x1="${gx}" y1="${gy1}" x2="${gx+gw}" y2="${gy1}" stroke="${FAINT}" stroke-width="1"/>`);
+  o.push(`<path d="M ${gx} ${gy1} L ${gx+gw} ${gy0} Z" fill="none" stroke="${PINK}" stroke-width="2"/>`);
+  o.push(`<text x="${gx}" y="${gy0-10}" fill="${PINK}" font-size="12" font-family="ui-monospace,monospace">τ(r) = Mt·r / Ip</text>`);
+  o.push(`<text x="${gx+gw+8}" y="${gy0+5}" fill="${PINK}" font-size="12" font-family="ui-monospace,monospace">τmax</text>`);
+  o.push(`<text x="${gx}" y="${gy1+22}" fill="${FAINT}" font-size="12" font-family="ui-monospace,monospace">0 ← radius → r_max</text>`);
+  $("svg").innerHTML=o.join("");
+  $("r").innerHTML=`Ip = π·d⁴/32 = <b class="hl2">${Ip.toFixed(0)} mm⁴</b>. Wp = π·d³/16 = <b class="hl2">${Wp.toFixed(0)} mm³</b>. τmax = Mt/Wp = <b class="hlp">${tau.toFixed(1)} N/mm²</b>. Twist φ = Mt·l/(G·Ip) = <b class="hlp">${phi.toFixed(4)} rad (${deg.toFixed(2)}°)</b>. Double d and Ip grows 16 times, so twist collapses.`;
+}
+[T,D,L].forEach(e=>e.addEventListener("input",draw)); draw();
+</script>
+</body></html>

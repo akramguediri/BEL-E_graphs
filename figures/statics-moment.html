@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moment and couple</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5.1 Technical Mechanics · § Moment, couples</div>
+  <h1>Moment: force times lever arm</h1>
+  <p>A force only turns a body if it has a lever arm. <b>M = F · a</b>, with counterclockwise positive in the deck convention. A <b>couple</b> is different: two equal, opposite forces a distance apart give the same moment wherever you measure it, because it is a free vector.</p>
+  <svg viewBox="0 0 760 300" id="svg"></svg>
+  <div class="seg"><button data-m="single" class="on">Single force</button><button data-m="couple">Couple</button></div>
+  <div class="ctrl"><label>force F <span class="val" id="lf">100</span> N</label><input type="range" id="f" min="0" max="200" step="5" value="100"></div>
+  <div class="ctrl"><label>lever arm / couple distance a <span class="val" id="la">1.0</span> m</label><input type="range" id="a" min="0" max="2" step="0.1" value="1"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),F=$("f"),A=$("a");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+let mode="single";
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".seg button").forEach(x=>x.classList.remove("on"));b.classList.add("on");mode=b.dataset.m;draw();}));
+function draw(){
+  const f=+F.value,a=+A.value,M=f*a;
+  $("lf").textContent=f;$("la").textContent=a.toFixed(1);
+  const px=200,py=200,sc=140;
+  const o=[];
+  if(mode==="single"){
+    const x=px+a*sc;
+    o.push(`<line x1="${px-120}" y1="${py}" x2="${px+320}" y2="${py}" stroke="${FAINT}" stroke-width="3"/>`);
+    o.push(`<circle cx="${px}" cy="${py}" r="8" fill="${INK}"/>`);
+    o.push(`<text x="${px-10}" y="${py+30}" fill="${INK}" font-size="13" font-family="ui-monospace,monospace">pivot P</text>`);
+    o.push(`<line x1="${x}" y1="${py-90}" x2="${x}" y2="${py}" stroke="${PINK}" stroke-width="3" marker-end="url(#a)"/>`);
+    o.push(`<text x="${x+10}" y="${py-70}" fill="${PINK}" font-size="13" font-family="ui-monospace,monospace">F = ${f} N</text>`);
+    o.push(`<line x1="${px}" y1="${py+14}" x2="${x}" y2="${py+14}" stroke="${AMB}" stroke-width="1" stroke-dasharray="4 4"/>`);
+    o.push(`<text x="${(px+x)/2}" y="${py+34}" fill="${AMB}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">a = ${a.toFixed(1)} m</text>`);
+    o.push(`<path d="M ${px+50} ${py-40} A 62 62 0 0 0 ${px+20} ${py-70}" fill="none" stroke="${GOOD}" stroke-width="3" marker-end="url(#a)"/>`);
+    $("r").innerHTML=`Single force, pushing down to the right of the pivot: it turns <b class="hlg">clockwise</b> in this sketch, so with the deck sign rule (counterclockwise positive) it is <b class="hlp">M = -F·a = -${M.toFixed(0)} Nm</b> (magnitude ${M.toFixed(0)} Nm). Push up instead, or move the force to the other side, and the sign flips. No lever arm, no moment: a force through the pivot gives M = 0.`;
+  } else {
+    const y1=py-50,y2=py+50,dx=a*sc;
+    o.push(`<line x1="${px}" y1="${y1}" x2="${px+dx}" y2="${y1}" stroke="${INK}" stroke-width="4"/>`);
+    o.push(`<line x1="${px}" y1="${y1}" x2="${px}" y2="${y2}" stroke="${FAINT}" stroke-width="1" stroke-dasharray="4 4"/>`);
+    o.push(`<line x1="${px+dx}" y1="${y1}" x2="${px+dx}" y2="${y2}" stroke="${FAINT}" stroke-width="1" stroke-dasharray="4 4"/>`);
+    o.push(`<line x1="${px+dx}" y1="${y1-70}" x2="${px+dx}" y2="${y1}" stroke="${PINK}" stroke-width="3" marker-end="url(#a)"/>`);
+    o.push(`<line x1="${px}" y1="${y2+70}" x2="${px}" y2="${y2}" stroke="${PINK}" stroke-width="3" marker-end="url(#a)"/>`);
+    o.push(`<text x="${px+dx+10}" y="${y1-50}" fill="${PINK}" font-size="13" font-family="ui-monospace,monospace">F down</text>`);
+    o.push(`<text x="${px+10}" y="${y2+90}" fill="${PINK}" font-size="13" font-family="ui-monospace,monospace">F up</text>`);
+    o.push(`<text x="${(px+px+dx)/2}" y="${y1-14}" fill="${AMB}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">a = ${a.toFixed(1)} m</text>`);
+    $("r").innerHTML=`Couple: two equal, opposite forces, distance a apart. Resultant force = 0, but moment <b class="hlp">M = F·a = ${M.toFixed(0)} Nm</b>. It does not depend on the reference point and is not bound to a line of action: slide the whole couple and M stays the same.`;
+  }
+  $("svg").innerHTML=`<defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 Z" fill="currentColor"/></marker></defs>`+o.join("");
+}
+[F,A].forEach(e=>e.addEventListener("input",draw)); draw();
+</script>
+</body></html>

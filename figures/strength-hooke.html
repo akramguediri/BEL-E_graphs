@@ -1,0 +1,44 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hooke's law</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5.1 Technical Mechanics · § Hooke's law</div>
+  <h1>Hooke's law: stretch follows stress</h1>
+  <p>Pull a rod and, for small loads, stress and strain stay proportional: <b>σ = E·ε</b>. The rod stretches by Δl = F·l / (E·A). Stiffer material (bigger E) or fatter section (bigger A) means less stretch for the same pull.</p>
+  <svg viewBox="0 0 760 300" id="svg"></svg>
+  <div class="ctrl"><label>force F <span class="val" id="lf">50</span> kN</label><input type="range" id="f" min="0" max="100" step="5" value="50"></div>
+  <div class="ctrl"><label>area A <span class="val" id="la">500</span> mm²</label><input type="range" id="a" min="100" max="1000" step="50" value="500"></div>
+  <div class="ctrl"><label>length l <span class="val" id="ll">1000</span> mm</label><input type="range" id="l" min="500" max="2000" step="100" value="1000"></div>
+  <div class="ctrl"><label>E <span class="val" id="le">210</span> GPa (steel 210, aluminium 70)</label><input type="range" id="e" min="70" max="210" step="10" value="210"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),F=$("f"),A=$("a"),L=$("l"),E=$("e");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+function draw(){
+  const f=+F.value,a=+A.value,l=+L.value,e=+E.value;
+  $("lf").textContent=f;$("la").textContent=a;$("ll").textContent=l;$("le").textContent=e;
+  const sigma=f*1000/a,eps=sigma/(e*1000),dl=eps*l;
+  const x0=120,x1=340,yb=220,stretch=Math.min(dl/ (l*0.02) ,1)*60;
+  const o=[];
+  o.push(`<rect x="${x0-20}" y="60" width="20" height="160" fill="#1a1a20" stroke="${FAINT}"/>`);
+  o.push(`<rect x="${x0}" y="110" width="${x1-x0+stretch}" height="60" fill="#15161b" stroke="${GOOD}" stroke-width="1.5"/>`);
+  o.push(`<line x1="${x1+stretch}" y1="140" x2="${x1+stretch+50}" y2="140" stroke="${PINK}" stroke-width="3" marker-end="url(#a)"/>`);
+  o.push(`<text x="${x1+stretch+58}" y="145" fill="${PINK}" font-size="13" font-family="ui-monospace,monospace">F</text>`);
+  o.push(`<text x="${x0}" y="250" fill="${FAINT}" font-size="12" font-family="ui-monospace,monospace">rod stretches by Δl (exaggerated here)</text>`);
+  const gx=460,gy0=50,gy1=220,gw=200;
+  o.push(`<line x1="${gx}" y1="${gy0}" x2="${gx}" y2="${gy1}" stroke="${FAINT}" stroke-width="1"/>`);
+  o.push(`<line x1="${gx}" y1="${gy1}" x2="${gx+gw}" y2="${gy1}" stroke="${FAINT}" stroke-width="1"/>`);
+  const px=gx+Math.min(eps/0.002,1)*gw,py=gy1-Math.min(sigma/300,1)*(gy1-gy0);
+  o.push(`<line x1="${gx}" y1="${gy1}" x2="${px}" y2="${py}" stroke="${BLUE}" stroke-width="3"/>`);
+  o.push(`<circle cx="${px}" cy="${py}" r="6" fill="${BLUE}"/>`);
+  o.push(`<text x="${gx}" y="${gy0-10}" fill="${BLUE}" font-size="12" font-family="ui-monospace,monospace">σ = E·ε, slope = E</text>`);
+  o.push(`<text x="${gx}" y="${gy1+22}" fill="${FAINT}" font-size="12" font-family="ui-monospace,monospace">ε →</text>`);
+  $("svg").innerHTML=`<defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 Z" fill="currentColor"/></marker></defs>`+o.join("");
+  $("r").innerHTML=`σ = F/A = <b class="hl2">${sigma.toFixed(1)} N/mm²</b>. ε = σ/E = <b class="hl2">${eps.toFixed(5)}</b>. Δl = ε·l = <b class="hlp">${dl.toFixed(2)} mm</b>. Thermal strain adds on top: ε_total = σ/E + α·ΔT. This linear law only holds for stresses that are not too large.`;
+}
+[F,A,L,E].forEach(el=>el.addEventListener("input",draw)); draw();
+</script>
+</body></html>

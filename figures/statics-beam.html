@@ -1,0 +1,54 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simply supported beam</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5.1 Technical Mechanics · § Internal forces, bending</div>
+  <h1>Simply supported beam: reactions, Q and M</h1>
+  <p>One point load on a simply supported beam. The reactions follow from equilibrium, the shear force <b>Q</b> jumps at the load, and the bending moment <b>M</b> peaks exactly under the load. Slide the load and watch the peak move.</p>
+  <svg viewBox="0 0 760 460" id="svg"></svg>
+  <div class="ctrl"><label>load F <span class="val" id="lf">10</span> kN</label><input type="range" id="f" min="1" max="20" step="1" value="10"></div>
+  <div class="ctrl"><label>load position a from left <span class="val" id="la">2.0</span> m (beam L = 6 m)</label><input type="range" id="a" min="0.5" max="5.5" step="0.5" value="2"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),F=$("f"),A=$("a");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+function draw(){
+  const f=+F.value,a=+A.value,L=6,b=L-a;
+  $("lf").textContent=f;$("la").textContent=a.toFixed(1);
+  const Ay=f*b/L,By=f*a/L,Mmax=f*a*b/L;
+  const x0=100,x1=660,yb=90,sc=(x1-x0)/L,lx=x0+a*sc;
+  const o=[];
+  o.push(`<line x1="${x0}" y1="${yb}" x2="${x1}" y2="${yb}" stroke="${INK}" stroke-width="4"/>`);
+  o.push(`<path d="M ${x0-18} ${yb+34} L ${x0+18} ${yb+34} L ${x0} ${yb} Z" fill="none" stroke="${GOOD}" stroke-width="2"/>`);
+  o.push(`<line x1="${x0-26}" y1="${yb+34}" x2="${x0+26}" y2="${yb+34}" stroke="${GOOD}" stroke-width="2"/>`);
+  o.push(`<circle cx="${x1}" cy="${yb+8}" r="9" fill="none" stroke="${GOOD}" stroke-width="2"/>`);
+  o.push(`<line x1="${x1-26}" y1="${yb+34}" x2="${x1+26}" y2="${yb+34}" stroke="${GOOD}" stroke-width="2"/>`);
+  o.push(`<line x1="${lx}" y1="${yb-70}" x2="${lx}" y2="${yb}" stroke="${PINK}" stroke-width="3" marker-end="url(#a)"/>`);
+  o.push(`<text x="${lx+10}" y="${yb-50}" fill="${PINK}" font-size="13" font-family="ui-monospace,monospace">F = ${f} kN</text>`);
+  o.push(`<text x="${x0}" y="${yb+58}" fill="${GOOD}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">Ay = ${Ay.toFixed(1)} kN</text>`);
+  o.push(`<text x="${x1}" y="${yb+58}" fill="${GOOD}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">By = ${By.toFixed(1)} kN</text>`);
+  o.push(`<text x="${x0}" y="${yb-14}" fill="${FAINT}" font-size="12" font-family="ui-monospace,monospace">a = ${a.toFixed(1)} m</text>`);
+  o.push(`<text x="${x1-60}" y="${yb-14}" fill="${FAINT}" font-size="12" font-family="ui-monospace,monospace">b = ${b.toFixed(1)} m</text>`);
+  // Q diagram
+  const qy=200,qsc=22/Math.max(Ay,By,0.1);
+  o.push(`<text x="20" y="${qy}" fill="${AMB}" font-size="13" font-family="ui-monospace,monospace">Q</text>`);
+  o.push(`<line x1="${x0}" y1="${qy}" x2="${x1}" y2="${qy}" stroke="${FAINT}" stroke-width="1"/>`);
+  o.push(`<path d="M ${x0} ${qy} L ${x0} ${qy-Ay*qsc} L ${lx} ${qy-Ay*qsc} L ${lx} ${qy+By*qsc} L ${x1} ${qy+By*qsc} L ${x1} ${qy}" fill="rgba(255,178,77,.12)" stroke="${AMB}" stroke-width="2"/>`);
+  o.push(`<text x="${x0+10}" y="${qy-Ay*qsc-8}" fill="${AMB}" font-size="12" font-family="ui-monospace,monospace">+${Ay.toFixed(1)}</text>`);
+  o.push(`<text x="${lx+10}" y="${qy+By*qsc+16}" fill="${AMB}" font-size="12" font-family="ui-monospace,monospace">-${By.toFixed(1)}</text>`);
+  // M diagram
+  const my=330,msc=70/Math.max(Mmax,0.1);
+  o.push(`<text x="20" y="${my}" fill="${BLUE}" font-size="13" font-family="ui-monospace,monospace">M</text>`);
+  o.push(`<line x1="${x0}" y1="${my}" x2="${x1}" y2="${my}" stroke="${FAINT}" stroke-width="1"/>`);
+  o.push(`<path d="M ${x0} ${my} L ${lx} ${my+Mmax*msc} L ${x1} ${my} Z" fill="rgba(91,140,255,.12)" stroke="${BLUE}" stroke-width="2"/>`);
+  o.push(`<text x="${lx}" y="${my+Mmax*msc+20}" fill="${BLUE}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">Mmax = ${Mmax.toFixed(1)} kNm</text>`);
+  o.push(`<text x="${x0}" y="440" fill="${FAINT}" font-size="12" font-family="ui-monospace,monospace">Q jumps by F at the load. M is zero at both supports and linear between load and supports.</text>`);
+  $("svg").innerHTML=`<defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 Z" fill="currentColor"/></marker></defs>`+o.join("");
+  $("r").innerHTML=`Equilibrium: Ay = F·b/L = <b class="hlg">${Ay.toFixed(2)} kN</b>, By = F·a/L = <b class="hlg">${By.toFixed(2)} kN</b>. Check: Ay + By = ${ (Ay+By).toFixed(1)} kN = F. Peak moment under the load: <b class="hl2">Mmax = F·a·b/L = ${Mmax.toFixed(2)} kNm</b>. Midspan load (a = b = 3 m) gives the largest possible peak, F·L/4 = ${(f*L/4).toFixed(1)} kNm.`;
+}
+[F,A].forEach(e=>e.addEventListener("input",draw)); draw();
+</script>
+</body></html>

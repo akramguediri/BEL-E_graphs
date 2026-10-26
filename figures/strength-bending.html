@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bending stress</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5.1 Technical Mechanics · § Bending</div>
+  <h1>Bending stress across a rectangle</h1>
+  <p>Bending stretches one face and squashes the other. Stress is <b>zero on the neutral axis</b> and largest at the outer fibres: σ = M / W, with W = I / z_max. Make the section taller and the stress falls fast, because I grows with h³.</p>
+  <svg viewBox="0 0 760 340" id="svg"></svg>
+  <div class="ctrl"><label>bending moment Mb <span class="val" id="lm">20</span> kNm</label><input type="range" id="m" min="0" max="50" step="1" value="20"></div>
+  <div class="ctrl"><label>width b <span class="val" id="lb">200</span> mm</label><input type="range" id="b" min="100" max="300" step="10" value="200"></div>
+  <div class="ctrl"><label>height h <span class="val" id="lh">400</span> mm</label><input type="range" id="h" min="200" max="600" step="20" value="400"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),M=$("m"),B=$("b"),H=$("h");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+function draw(){
+  const mb=+M.value,b=+B.value,h=+H.value;
+  $("lm").textContent=mb;$("lb").textContent=b;$("lh").textContent=h;
+  const I=b*Math.pow(h,3)/12,W=b*h*h/6,sigma=mb*1e6/W;
+  const x0=120,y0=40,y1=280,cx=260,cy=(y0+y1)/2;
+  const o=[];
+  o.push(`<rect x="${x0}" y="${y0}" width="160" height="${y1-y0}" fill="#15161b" stroke="${INK}" stroke-width="1.5"/>`);
+  o.push(`<line x1="${x0-20}" y1="${cy}" x2="${x0+180}" y2="${cy}" stroke="${FAINT}" stroke-width="1" stroke-dasharray="4 4"/>`);
+  o.push(`<text x="${x0+180}" y="${cy-6}" fill="${FAINT}" font-size="12" font-family="ui-monospace,monospace">neutral axis, σ = 0</text>`);
+  o.push(`<text x="${x0+80}" y="${y0-10}" fill="${BLUE}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">compression</text>`);
+  o.push(`<text x="${x0+80}" y="${y1+22}" fill="${GOOD}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">tension</text>`);
+  // stress profile to the right of section
+  const px=420,py0=y0,py1=y1,pcy=cy,pw=180;
+  o.push(`<path d="M ${px} ${pcy} L ${px+pw} ${py0} L ${px+pw} ${py1} Z" fill="rgba(91,140,255,.10)" stroke="none"/>`);
+  o.push(`<line x1="${px}" y1="${py0}" x2="${px+pw}" y2="${py0}" stroke="${BLUE}" stroke-width="2"/>`);
+  o.push(`<line x1="${px}" y1="${py1}" x2="${px+pw}" y2="${py1}" stroke="${GOOD}" stroke-width="2"/>`);
+  o.push(`<line x1="${px+pw}" y1="${py0}" x2="${px+pw}" y2="${py1}" stroke="${PINK}" stroke-width="2"/>`);
+  o.push(`<line x1="${px}" y1="${pcy}" x2="${px+pw}" y2="${pcy}" stroke="${FAINT}" stroke-width="1" stroke-dasharray="4 4"/>`);
+  o.push(`<text x="${px+pw+10}" y="${py0+5}" fill="${BLUE}" font-size="12" font-family="ui-monospace,monospace">-σmax</text>`);
+  o.push(`<text x="${px+pw+10}" y="${py1+5}" fill="${GOOD}" font-size="12" font-family="ui-monospace,monospace">+σmax</text>`);
+  o.push(`<text x="${x0+80}" y="${y1+44}" fill="${FAINT}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">b = ${b} mm, h = ${h} mm</text>`);
+  $("svg").innerHTML=o.join("");
+  $("r").innerHTML=`I_y = b·h³/12 = <b class="hl2">${(I/1e6).toFixed(1)} × 10⁶ mm⁴</b>. W_y = b·h²/6 = <b class="hl2">${(W/1e3).toFixed(1)} × 10³ mm³</b>. σmax = Mb/W = <b class="hlp">${sigma.toFixed(1)} N/mm²</b>. Double h and W grows 4 times, so σmax falls to a quarter. Double b and W only doubles.`;
+}
+[M,B,H].forEach(e=>e.addEventListener("input",draw)); draw();
+</script>
+</body></html>

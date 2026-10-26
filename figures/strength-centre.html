@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Centre of area</title>
+<link rel="stylesheet" href="_style.css">
+</head><body>
+<section class="card">
+  <div class="tag">G5.1 Technical Mechanics · § Centre of gravity, centre of area</div>
+  <h1>Centre of area: area-weighted average</h1>
+  <p>Split a shape into simple parts, take each part's area times its own centre height, add them, and divide by total area. Here a rectangle plus a triangle on top, symmetric left to right, so xS stays in the middle and only yS moves.</p>
+  <svg viewBox="0 0 760 340" id="svg"></svg>
+  <div class="ctrl"><label>width B <span class="val" id="lb">200</span> mm</label><input type="range" id="b" min="100" max="300" step="10" value="200"></div>
+  <div class="ctrl"><label>rectangle height H <span class="val" id="lh">150</span> mm</label><input type="range" id="h" min="50" max="250" step="10" value="150"></div>
+  <div class="ctrl"><label>triangle height Ht <span class="val" id="lt">100</span> mm</label><input type="range" id="t" min="0" max="200" step="10" value="100"></div>
+  <div class="readout" id="r"></div>
+</section>
+<script>
+const $=id=>document.getElementById(id),B=$("b"),H=$("h"),T=$("t");
+const BLUE="#5b8cff",AMB="#ffb24d",PINK="#ff7b9c",GOOD="#54d19a",INK="#cfd3dc",FAINT="#3a3a42";
+function draw(){
+  const b=+B.value,h=+H.value,ht=+T.value;
+  $("lb").textContent=b;$("lh").textContent=h;$("lt").textContent=ht;
+  const Ar=b*h,At=b*ht/2,ys=(Ar*h/2+At*(h+ht/3))/(Ar+At);
+  const x0=220,x1=520,yb=280,sc=0.7;
+  const rh=h*sc,th=ht*sc,yt=yb-rh-th;
+  const o=[];
+  o.push(`<rect x="${x0}" y="${yb-rh}" width="${x1-x0}" height="${rh}" fill="#15161b" stroke="${INK}" stroke-width="1.5"/>`);
+  if(ht>0)o.push(`<path d="M ${x0} ${yb-rh} L ${x1} ${yb-rh} L ${(x0+x1)/2} ${yt} Z" fill="#15161b" stroke="${INK}" stroke-width="1.5"/>`);
+  const cy=yb-ys*sc;
+  o.push(`<line x1="${x0-30}" y1="${cy}" x2="${x1+30}" y2="${cy}" stroke="${PINK}" stroke-width="1" stroke-dasharray="4 4"/>`);
+  o.push(`<circle cx="${(x0+x1)/2}" cy="${cy}" r="7" fill="${PINK}"/>`);
+  o.push(`<text x="${x1+40}" y="${cy+5}" fill="${PINK}" font-size="13" font-family="ui-monospace,monospace">S, yS = ${ys.toFixed(1)} mm</text>`);
+  o.push(`<line x1="${x0-14}" y1="${yb}" x2="${x0-14}" y2="${cy}" stroke="${AMB}" stroke-width="1" stroke-dasharray="4 4"/>`);
+  o.push(`<text x="${x0-20}" y="${yb+22}" fill="${FAINT}" font-size="12" font-family="ui-monospace,monospace">base (y = 0)</text>`);
+  o.push(`<text x="${(x0+x1)/2}" y="${yb-rh/2+5}" fill="${GOOD}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">rectangle, centre at H/2</text>`);
+  if(ht>0)o.push(`<text x="${(x0+x1)/2}" y="${yb-rh-th/2+5}" fill="${BLUE}" font-size="12" text-anchor="middle" font-family="ui-monospace,monospace">triangle, centre at H + Ht/3</text>`);
+  $("svg").innerHTML=o.join("");
+  $("r").innerHTML=`Rectangle: A = ${Ar.toFixed(0)} mm², centre at ${(h/2).toFixed(1)} mm. Triangle: A = ${At.toFixed(0)} mm², centre at ${(h+ht/3).toFixed(1)} mm. Total A = ${(Ar+At).toFixed(0)} mm², so <b class="hlp">yS = (${Ar.toFixed(0)}·${(h/2).toFixed(1)} + ${At.toFixed(0)}·${(h+ht/3).toFixed(1)}) / ${(Ar+At).toFixed(0)} = ${ys.toFixed(1)} mm</b> above the base. A hole would count as a negative area in the same formula.`;
+}
+[B,H,T].forEach(e=>e.addEventListener("input",draw)); draw();
+</script>
+</body></html>
