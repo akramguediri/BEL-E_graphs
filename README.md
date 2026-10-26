@@ -40,6 +40,13 @@ Served via **GitHub Pages** so the figures can be embedded directly in Notion pa
 | DC motor series vs shunt | G5 Technology I | [`figures/dc-series-shunt.html`](figures/dc-series-shunt.html) |
 | Four ways to load a beam (strength of materials) | G5.1 Technical Mechanics | [`figures/beam-loads.html`](figures/beam-loads.html) |
 | Pallets in a container (floor utilisation) | G1 Logistics Systems | [`figures/container-fit.html`](figures/container-fit.html) |
+| Force board: resultant of two forces | G5.1 Technical Mechanics | [`figures/statics-resultant.html`](figures/statics-resultant.html) |
+| Spanner: moment M = F·a | G5.1 Technical Mechanics | [`figures/statics-moment.html`](figures/statics-moment.html) |
+| Simply supported beam: reactions, Q and M | G5.1 Technical Mechanics | [`figures/statics-beam.html`](figures/statics-beam.html) |
+| Plate on a needle: centre of area | G5.1 Technical Mechanics | [`figures/strength-centre.html`](figures/strength-centre.html) |
+| Tensile frame: Hooke's law, steel vs aluminium | G5.1 Technical Mechanics | [`figures/strength-hooke.html`](figures/strength-hooke.html) |
+| Cantilever: bending stress σ = M/W | G5.1 Technical Mechanics | [`figures/strength-bending.html`](figures/strength-bending.html) |
+| Torsion bench: τ = Mt·r/Ip, twist angle | G5.1 Technical Mechanics | [`figures/strength-torsion.html`](figures/strength-torsion.html) |
 | Math Playground (interactive) | G3 Applied Mathematics | [`figures/math-playground.html`](figures/math-playground.html) |
 
 ## Setup (one-time)
